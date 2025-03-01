@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   schedule:
-    - cron: "*/5 * * * *"  # run every 5 minutes
+    - cron: "*/5 * * * *"  # Runs every 5 minutes
   workflow_dispatch:
 
 jobs:
@@ -13,16 +13,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Install system dependencies for lxml
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxml2-dev libxslt-dev python3-dev
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
-      - name: Install system dependencies for lxml
-        run: |
-            sudo apt-get update
-            sudo apt-get install -y libxml2-dev libxslt-dev python3-dev
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: pip install -r requirements.txt
 
       - name: Generate static site
@@ -39,7 +40,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
           publish_branch: gh-pages
-
-      - name: Install dependencies for lxml html clean
-        run: pip install lxml[html_clean] lxml_html_clean
-
