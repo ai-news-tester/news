@@ -3,6 +3,21 @@ import re
 import shutil
 import requests
 from datetime import datetime
+from newspaper import Article  # Make sure to install newspaper3k
+
+def get_full_article(article_url):
+    """
+    Scrape the full article text from the URL using newspaper3k.
+    If unsuccessful, return a fallback message.
+    """
+    try:
+        art = Article(article_url)
+        art.download()
+        art.parse()
+        return art.text
+    except Exception as e:
+        print(f"Error fetching full article from {article_url}: {e}")
+        return "Full article not available. Please click 'Visit Original Article'."
 
 def fetch_ai_news():
     """
@@ -53,12 +68,10 @@ def generate_html(articles):
     """
     Generate an HTML page displaying the articles.
     
-    Each article shows a "Read More" button which toggles an inline collapsible
-    section containing additional content. Also, each article includes a data attribute for
-    its publishedAt date.
+    Each article has a "Read More" button that expands a collapsible area. In the collapsible area,
+    the full article is loaded using newspaper3k.
     
-    Later, client-side JavaScript compares the published times against a stored
-    "lastSeen" timestamp and inserts a red divider just before the first article that is older.
+    A red divider is inserted as a reminder of previously seen articles using client-side localStorage.
     """
     html_content = """<!DOCTYPE html>
 <html lang="en">
@@ -83,7 +96,6 @@ def generate_html(articles):
 <div class="container mt-5">
   <h1 class="mb-4">Latest AI News</h1>
 """
-    # List all articles (without removing any).
     for index, article in enumerate(articles):
         try:
             pub_dt = datetime.fromisoformat(article.get("publishedAt").replace("Z", "+00:00"))
@@ -96,19 +108,22 @@ def generate_html(articles):
             f'<img src="{article.get("urlToImage")}" class="card-img-top" alt="{article.get("title")}">'
             if article.get("urlToImage") else ""
         )
-        # Each article gets a collapse section for "Read More"
+        # Instead of using the truncated content from NewsAPI, fetch full content.
+        full_article_text = get_full_article(article.get("url"))
+        collapse_id = f"collapse{index}"
+        
         html_content += f"""
   <div class="card mb-3">
     {image_html}
     <div class="card-body">
       <h5 class="card-title">{article.get("title")}</h5>
       <p class="card-text">{article.get("description", "")}</p>
-      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{index}" aria-expanded="false" aria-controls="collapse{index}">
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#{collapse_id}" aria-expanded="false" aria-controls="{collapse_id}">
         Read More
       </button>
-      <div class="collapse mt-2" id="collapse{index}">
+      <div class="collapse mt-2" id="{collapse_id}">
         <div class="card card-body">
-          <p>{article.get("content") or "Full content not available."}</p>
+          <p>{full_article_text}</p>
           <a href="{article.get("url")}" target="_blank">Visit Original Article</a>
         </div>
       </div>
@@ -121,15 +136,12 @@ def generate_html(articles):
     if not articles:
         html_content += "<p>No strictly AI-related articles found.</p>\n"
     
-    # Insert the inline script to add a red divider based on localStorage.
     html_content += """
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Retrieve the last seen date from localStorage
   const lastSeen = localStorage.getItem('lastSeen');
-  // Get all article cards (each with class "card mb-3")
   const cards = document.querySelectorAll('.card.mb-3');
   let dividerInserted = false;
   if (lastSeen) {
@@ -137,8 +149,6 @@ document.addEventListener('DOMContentLoaded', function() {
       const pubDateElem = card.querySelector('.pub-date');
       if (pubDateElem) {
         const pubDate = new Date(pubDateElem.getAttribute('data-pub-date'));
-        // If this article is older than the last seen article and we haven't inserted a divider yet,
-        // insert a red divider above this card.
         if (pubDate < new Date(lastSeen) && !dividerInserted) {
           const divider = document.createElement('div');
           divider.className = 'divider';
@@ -149,7 +159,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-  // Update the lastSeen value with the published date of the newest article.
   if (cards.length > 0) {
     const firstPubDate = cards[0].querySelector('.pub-date').getAttribute('data-pub-date');
     localStorage.setItem('lastSeen', firstPubDate);
@@ -163,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 def clean_site_folder(site_dir="site"):
     """
-    Remove the site folder if it exists and then recreate it.
+    Remove the site folder if it exists, then recreate it.
     """
     if os.path.exists(site_dir):
         shutil.rmtree(site_dir)
