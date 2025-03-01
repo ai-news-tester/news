@@ -17,7 +17,6 @@ def fetch_technology_sources(api_key):
     response.raise_for_status()
     data = response.json()
     sources = data.get("sources", [])
-    # Join all source IDs with a comma separator.
     return ",".join([source["id"] for source in sources if "id" in source])
 
 def fetch_ai_news_filtered():
@@ -25,37 +24,42 @@ def fetch_ai_news_filtered():
     if not api_key:
         raise ValueError("Please set the NEWS_API_KEY environment variable!")
     
-    # Get technology-related news sources.
+    # Get IDs for technology sources.
     tech_sources = fetch_technology_sources(api_key)
     
     url = "https://newsapi.org/v2/everything"
     params = {
-        # Use a broader query that finds articles containing "ai" or "Artificial Intelligence".
-        "q": 'ai OR "Artificial Intelligence"',
-        # Limit results to technology sources.
+        # Search only in titles for "ai" or "Artificial Intelligence"
+        "qInTitle": 'ai OR "Artificial Intelligence"',
         "sources": tech_sources,
         "sortBy": "publishedAt",
         "pageSize": 20,
         "language": "en",
-        "apiKey": api_key
+        "apiKey": api_key,
     }
     
     response = requests.get(url, params=params)
     response.raise_for_status()
     data = response.json()
     articles = data.get("articles", [])
-
-    # Use regex with word boundaries to match the keywords explicitly.
+    
+    # Debug: Print all obtained titles.
+    print("Fetched articles:")
+    for art in articles:
+        print(" -", art.get("title"))
+    
+    # Optional: further filter articles with regex.
     pattern = re.compile(r"\b(ai|artificial intelligence)\b", re.IGNORECASE)
-    filtered_articles = []
-    for article in articles:
-        title = article.get("title", "")
-        description = article.get("description", "")
-        # Only include the article if its title or description contains the keyword.
-        if pattern.search(title) or pattern.search(description):
-            filtered_articles.append(article)
-            
-    return filtered_articles
+    filtered_articles = [
+        art for art in articles
+        if art.get("title") and pattern.search(art.get("title"))
+    ]
+    
+    # If regex filtering removes all articles, fallback to the original list.
+    if filtered_articles:
+        return filtered_articles
+    else:
+        return articles
 
 def generate_html(articles):
     html_content = """<!DOCTYPE html>
@@ -64,7 +68,7 @@ def generate_html(articles):
   <meta charset="UTF-8">
   <title>AI News Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" 
+  <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
@@ -75,7 +79,8 @@ def generate_html(articles):
         for article in articles:
             image_html = (
                 f'<img src="{article.get("urlToImage")}" class="card-img-top" '
-                f'alt="{article.get("title")}">' if article.get("urlToImage") else ""
+                f'alt="{article.get("title")}">'
+                if article.get("urlToImage") else ""
             )
             html_content += f"""
   <div class="card mb-3">
@@ -118,8 +123,6 @@ def main():
     
     html = generate_html(articles)
     output_dir = "site"
-    
-    # Clean the site folder.
     clean_site_folder(output_dir)
     
     try:
