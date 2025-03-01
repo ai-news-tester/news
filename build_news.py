@@ -1,37 +1,15 @@
 import os
-import re
 import shutil
 import requests
 
-def fetch_technology_sources(api_key):
-    """
-    Fetch a comma-separated list of source IDs for technology-related news.
-    """
-    url = "https://newsapi.org/v2/sources"
-    params = {
-        "category": "technology",
-        "language": "en",
-        "apiKey": api_key,
-    }
-    response = requests.get(url, params=params)
-    response.raise_for_status()
-    data = response.json()
-    sources = data.get("sources", [])
-    return ",".join([source["id"] for source in sources if "id" in source])
-
-def fetch_ai_news_filtered():
+def fetch_ai_news():
     api_key = os.environ.get("NEWS_API_KEY")
     if not api_key:
         raise ValueError("Please set the NEWS_API_KEY environment variable!")
     
-    # Get IDs for technology sources.
-    tech_sources = fetch_technology_sources(api_key)
-    
     url = "https://newsapi.org/v2/everything"
     params = {
-        # Search only in titles for "ai" or "Artificial Intelligence"
-        "qInTitle": 'ai OR "Artificial Intelligence"',
-        "sources": tech_sources,
+        "q": "AI",  # simple query that worked before
         "sortBy": "publishedAt",
         "pageSize": 20,
         "language": "en",
@@ -39,27 +17,28 @@ def fetch_ai_news_filtered():
     }
     
     response = requests.get(url, params=params)
-    response.raise_for_status()
+    response.raise_for_status()  # will raise an error if something goes wrong
     data = response.json()
     articles = data.get("articles", [])
+    return articles
+
+def filter_ai_articles(articles):
+    """
+    Perform a light filtering: Only keep articles where the title or description
+    contains "ai" or "artificial intelligence" (case-insensitive). If filtering returns
+    an empty list, fallback to the original list so you see something.
+    """
+    filtered = []
+    for article in articles:
+        title = article.get("title", "").lower()
+        description = article.get("description", "").lower()
+        
+        if "ai" in title or "artificial intelligence" in title or \
+           "ai" in description or "artificial intelligence" in description:
+            filtered.append(article)
     
-    # Debug: Print all obtained titles.
-    print("Fetched articles:")
-    for art in articles:
-        print(" -", art.get("title"))
-    
-    # Optional: further filter articles with regex.
-    pattern = re.compile(r"\b(ai|artificial intelligence)\b", re.IGNORECASE)
-    filtered_articles = [
-        art for art in articles
-        if art.get("title") and pattern.search(art.get("title"))
-    ]
-    
-    # If regex filtering removes all articles, fallback to the original list.
-    if filtered_articles:
-        return filtered_articles
-    else:
-        return articles
+    # If filtering has dropped everything, fall back to the original list.
+    return filtered if filtered else articles
 
 def generate_html(articles):
     html_content = """<!DOCTYPE html>
@@ -68,7 +47,7 @@ def generate_html(articles):
   <meta charset="UTF-8">
   <title>AI News Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet"
+  <link rel="stylesheet" 
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
@@ -78,8 +57,7 @@ def generate_html(articles):
     if articles:
         for article in articles:
             image_html = (
-                f'<img src="{article.get("urlToImage")}" class="card-img-top" '
-                f'alt="{article.get("title")}">'
+                f'<img src="{article.get("urlToImage")}" class="card-img-top" alt="{article.get("title")}">'
                 if article.get("urlToImage") else ""
             )
             html_content += f"""
@@ -92,9 +70,7 @@ def generate_html(articles):
         Read More
       </a>
       <p class="card-text">
-        <small class="text-muted">
-          Published at: {article.get("publishedAt")}
-        </small>
+        <small class="text-muted">Published at: {article.get("publishedAt")}</small>
       </p>
     </div>
   </div>
@@ -109,28 +85,33 @@ def generate_html(articles):
 """
     return html_content
 
-def clean_site_folder(output_dir="site"):
-    if os.path.exists(output_dir):
-        shutil.rmtree(output_dir)
-    os.makedirs(output_dir)
+def clean_site_folder(site_dir="site"):
+    if os.path.exists(site_dir):
+        shutil.rmtree(site_dir)
+    os.makedirs(site_dir)
 
 def main():
     try:
-        articles = fetch_ai_news_filtered()
+        articles = fetch_ai_news()
     except Exception as e:
-        print(f"Error fetching news: {e}")
+        print("Error fetching news:", e)
         articles = []
     
-    html = generate_html(articles)
-    output_dir = "site"
-    clean_site_folder(output_dir)
+    if articles:
+        filtered_articles = filter_ai_articles(articles)
+    else:
+        filtered_articles = []
+    
+    html = generate_html(filtered_articles)
+    
+    clean_site_folder("site")
     
     try:
-        with open(os.path.join(output_dir, "index.html"), "w", encoding="utf-8") as f:
+        with open("site/index.html", "w", encoding="utf-8") as f:
             f.write(html)
-        print("Site generated at 'site/index.html'.")
+        print("Site generated at site/index.html.")
     except Exception as e:
-        print(f"Error writing HTML file: {e}")
+        print("Error writing HTML file:", e)
 
 if __name__ == "__main__":
     main()
