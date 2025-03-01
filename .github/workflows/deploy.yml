@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   schedule:
-    # Runs daily at 12:00 UTC – adjust the cron schedule as needed.
+    # Runs daily at 12:00 UTC – adjust as needed.
     - cron: "0 12 * * *"
   workflow_dispatch:
 
