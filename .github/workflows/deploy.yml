@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   schedule:
-    - cron: "0 12 * * *"
+    - cron: "*/5 * * * *"  # run every 5 minutes
   workflow_dispatch:
 
 jobs:
