@@ -35,3 +35,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
           publish_branch: gh-pages
+
+      - name: Install dependencies for lxml html clean
+        run: pip install lxml[html_clean] lxml_html_clean
+
