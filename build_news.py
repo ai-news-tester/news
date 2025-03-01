@@ -30,8 +30,8 @@ def fetch_ai_news_filtered():
     
     url = "https://newsapi.org/v2/everything"
     params = {
-        # Use quotes for a precise phrase search.
-        "q": "\"Artificial Intelligence\"",
+        # Use a broader query that finds articles containing "ai" or "Artificial Intelligence".
+        "q": 'ai OR "Artificial Intelligence"',
         # Limit results to technology sources.
         "sources": tech_sources,
         "sortBy": "publishedAt",
@@ -45,13 +45,13 @@ def fetch_ai_news_filtered():
     data = response.json()
     articles = data.get("articles", [])
 
-    # Use regex with word boundaries to match "AI" or "artificial intelligence"
+    # Use regex with word boundaries to match the keywords explicitly.
     pattern = re.compile(r"\b(ai|artificial intelligence)\b", re.IGNORECASE)
     filtered_articles = []
     for article in articles:
         title = article.get("title", "")
         description = article.get("description", "")
-        # Only include the article if its title or description contains the whole word.
+        # Only include the article if its title or description contains the keyword.
         if pattern.search(title) or pattern.search(description):
             filtered_articles.append(article)
             
@@ -75,8 +75,7 @@ def generate_html(articles):
         for article in articles:
             image_html = (
                 f'<img src="{article.get("urlToImage")}" class="card-img-top" '
-                f'alt="{article.get("title")}">'
-                if article.get("urlToImage") else ""
+                f'alt="{article.get("title")}">' if article.get("urlToImage") else ""
             )
             html_content += f"""
   <div class="card mb-3">
