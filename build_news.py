@@ -2,12 +2,11 @@ import os
 import re
 import shutil
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime
 
 def fetch_ai_news():
     """
-    Fetch articles from NewsAPI using a broad query that includes several
-    AI-related keywords.
+    Fetch articles from NewsAPI using a broad query that includes several AI-related keywords.
     """
     api_key = os.environ.get("NEWS_API_KEY")
     if not api_key:
@@ -54,9 +53,12 @@ def generate_html(articles):
     """
     Generate an HTML page displaying the articles.
     
-    In this version, a "Read More" button toggles an inline, collapsible section
-    that shows additional article content. A divider is inserted when there's a
-    significant time gap (default: 60 minutes) between articles.
+    Each article shows a "Read More" button which toggles an inline collapsible
+    section containing additional content. Also, each article includes a data attribute for
+    its publishedAt date.
+    
+    Later, client-side JavaScript compares the published times against a stored
+    "lastSeen" timestamp and inserts a red divider just before the first article that is older.
     """
     html_content = """<!DOCTYPE html>
 <html lang="en">
@@ -68,10 +70,12 @@ def generate_html(articles):
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>
     .divider {
-      margin: 2rem 0;
+      border-top: 2px solid red;
+      margin: 20px 0;
+      padding-top: 10px;
       text-align: center;
-      color: #6c757d;
-      font-style: italic;
+      color: red;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -79,58 +83,36 @@ def generate_html(articles):
 <div class="container mt-5">
   <h1 class="mb-4">Latest AI News</h1>
 """
-    # Set a threshold for the time gap.
-    threshold = timedelta(minutes=60)
-    
-    # Assume articles are sorted by publishedAt descending.
+    # List all articles (without removing any).
     for index, article in enumerate(articles):
-        if index > 0:
-            try:
-                current_date = datetime.fromisoformat(
-                    article.get("publishedAt").replace("Z", "+00:00")
-                )
-                previous_date = datetime.fromisoformat(
-                    articles[index - 1].get("publishedAt").replace("Z", "+00:00")
-                )
-                if (previous_date - current_date) > threshold:
-                    html_content += (
-                        '<hr><div class="divider">Earlier Articles</div><hr>'
-                    )
-            except Exception as e:
-                print("Error parsing dates:", e)
-        
         try:
-            pub_date = datetime.fromisoformat(
-                article.get("publishedAt").replace("Z", "+00:00")
-            ).strftime('%Y-%m-%d %H:%M')
+            pub_dt = datetime.fromisoformat(article.get("publishedAt").replace("Z", "+00:00"))
+            pub_date = pub_dt.strftime('%Y-%m-%d %H:%M')
+            pub_date_iso = article.get("publishedAt")
         except Exception:
             pub_date = article.get("publishedAt", "Unknown Date")
-        
+            pub_date_iso = ""
         image_html = (
             f'<img src="{article.get("urlToImage")}" class="card-img-top" alt="{article.get("title")}">'
             if article.get("urlToImage") else ""
         )
-        
-        # Use the content field if available; otherwise, provide a fallback.
-        article_content = article.get("content") or "Full content not available."
-        collapse_id = f"collapse{index}"
-        
+        # Each article gets a collapse section for "Read More"
         html_content += f"""
   <div class="card mb-3">
     {image_html}
     <div class="card-body">
       <h5 class="card-title">{article.get("title")}</h5>
       <p class="card-text">{article.get("description", "")}</p>
-      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#{collapse_id}" aria-expanded="false" aria-controls="{collapse_id}">
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{index}" aria-expanded="false" aria-controls="collapse{index}">
         Read More
       </button>
-      <div class="collapse mt-2" id="{collapse_id}">
+      <div class="collapse mt-2" id="collapse{index}">
         <div class="card card-body">
-          <p>{article_content}</p>
+          <p>{article.get("content") or "Full content not available."}</p>
           <a href="{article.get("url")}" target="_blank">Visit Original Article</a>
         </div>
       </div>
-      <p class="card-text">
+      <p class="card-text pub-date" data-pub-date="{pub_date_iso}">
         <small class="text-muted">Published at: {pub_date}</small>
       </p>
     </div>
@@ -139,9 +121,41 @@ def generate_html(articles):
     if not articles:
         html_content += "<p>No strictly AI-related articles found.</p>\n"
     
+    # Insert the inline script to add a red divider based on localStorage.
     html_content += """
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Retrieve the last seen date from localStorage
+  const lastSeen = localStorage.getItem('lastSeen');
+  // Get all article cards (each with class "card mb-3")
+  const cards = document.querySelectorAll('.card.mb-3');
+  let dividerInserted = false;
+  if (lastSeen) {
+    cards.forEach(card => {
+      const pubDateElem = card.querySelector('.pub-date');
+      if (pubDateElem) {
+        const pubDate = new Date(pubDateElem.getAttribute('data-pub-date'));
+        // If this article is older than the last seen article and we haven't inserted a divider yet,
+        // insert a red divider above this card.
+        if (pubDate < new Date(lastSeen) && !dividerInserted) {
+          const divider = document.createElement('div');
+          divider.className = 'divider';
+          divider.innerText = 'Previously Seen Articles';
+          card.parentNode.insertBefore(divider, card);
+          dividerInserted = true;
+        }
+      }
+    });
+  }
+  // Update the lastSeen value with the published date of the newest article.
+  if (cards.length > 0) {
+    const firstPubDate = cards[0].querySelector('.pub-date').getAttribute('data-pub-date');
+    localStorage.setItem('lastSeen', firstPubDate);
+  }
+});
+</script>
 </body>
 </html>
 """
@@ -164,7 +178,6 @@ def main():
     
     strict_articles = filter_ai_articles(articles)
     html = generate_html(strict_articles)
-    
     clean_site_folder("site")
     
     try:
