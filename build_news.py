@@ -8,10 +8,9 @@ from bs4 import BeautifulSoup  # Ensure beautifulsoup4 is installed
 
 def get_full_article(article_url):
     """
-    For Biztoc URLs: Attempt to extract the original article URL from the Biztoc page by looking 
-    for an anchor tag where the text includes "this story appeared on" or "original article".
-    Then use newspaper3k to retrieve the full article text from that URL.
-    For all other URLs, attempt to fetch the full article directly.
+    For Biztoc URLs: Look within the Biztoc page for an anchor tag whose text includes 
+    "this story appeared on" or "original article." If found, use that URL as the source.
+    For all other URLs, try to fetch the full article using newspaper3k.
     """
     if "biztoc.com" in article_url:
         try:
@@ -19,7 +18,6 @@ def get_full_article(article_url):
             res.raise_for_status()
             soup = BeautifulSoup(res.text, 'html.parser')
             original_link = None
-            # Look for an anchor tag containing typical Biztoc phrasing.
             for a in soup.find_all('a', href=True):
                 text = a.get_text().strip().lower()
                 if "this story appeared on" in text or "original article" in text:
@@ -45,7 +43,7 @@ def get_full_article(article_url):
 
 def fetch_ai_news():
     """
-    Fetch articles from NewsAPI using a broad query about AI-related topics.
+    Fetch articles from NewsAPI using a broad AI-related query.
     """
     api_key = os.environ.get("NEWS_API_KEY")
     if not api_key:
@@ -67,10 +65,11 @@ def fetch_ai_news():
 
 def filter_ai_articles(articles):
     """
-    Filter articles so that:
-      1. Any article whose URL comes from a blocked domain (like "economictimes.indiatimes.com") is skipped.
-      2. If an article's URL is from Biztoc, allow it regardless of content—Biztoc often provides only a preview.
-      3. All other articles must contain at least one of the required AI-related terms.
+    Filter articles as follows:
+      - If the article comes from a blocked domain (e.g. "economictimes.indiatimes.com"), skip it.
+      - If the article's URL contains "biztoc.com", allow it (Biztoc often provides only preview text).
+      - For all other articles, require that at least one key phrase is present in their
+        title, description, or content.
     """
     required_terms = [
         "artificial intelligence",
@@ -84,10 +83,10 @@ def filter_ai_articles(articles):
     filtered = []
     for article in articles:
         url = article.get("url", "").lower()
-        # Skip blocked domains.
+        # Skip articles from blocked domains.
         if any(blocked in url for blocked in blocked_domains):
             continue
-        # Allow Biztoc articles regardless of content.
+        # Allow Biztoc articles regardless of text.
         if "biztoc.com" in url:
             filtered.append(article)
             continue
@@ -102,12 +101,11 @@ def filter_ai_articles(articles):
 
 def generate_html(articles):
     """
-    Generate an HTML page displaying articles with:
-      - A "Read More" button that toggles a collapsible section.
-      - The collapsible section shows the full article text (or a fallback).
-      - The article's published date.
-      - A client-side script that inserts a red divider above articles that are older 
-        than previously seen articles.
+    Generate an HTML page listing articles. Each article card includes:
+      - An image (if available)
+      - Title and description
+      - A "Read More" button that expands to show full article text (via get_full_article)
+      - Publication date metadata (used by a client-side script to insert a red divider)
     """
     html_content = """<!DOCTYPE html>
 <html lang="en">
@@ -139,9 +137,11 @@ def generate_html(articles):
         except Exception:
             pub_date = article.get("publishedAt", "Unknown Date")
             pub_date_iso = ""
-        image_html = f'<img src="{article.get("urlToImage")}" class="card-img-top" alt="{article.get("title")}">' if article.get("urlToImage") else ""
+        image_html = (f'<img src="{article.get("urlToImage")}" class="card-img-top" alt="{article.get("title")}">'
+                      if article.get("urlToImage") else "")
         full_article_text = get_full_article(article.get("url"))
         collapse_id = f"collapse{index}"
+        
         html_content += f"""
   <div class="card mb-3">
     {image_html}
@@ -200,9 +200,6 @@ document.addEventListener('DOMContentLoaded', function() {
     return html_content
 
 def clean_site_folder(site_dir="site"):
-    """
-    Remove the site folder if it exists, then recreate it.
-    """
     if os.path.exists(site_dir):
         shutil.rmtree(site_dir)
     os.makedirs(site_dir)
@@ -213,8 +210,8 @@ def main():
     except Exception as e:
         print("Error fetching news:", e)
         articles = []
-    strict_articles = filter_ai_articles(articles)
-    html = generate_html(strict_articles)
+    filtered_articles = filter_ai_articles(articles)
+    html = generate_html(filtered_articles)
     clean_site_folder("site")
     try:
         with open(os.path.join("site", "index.html"), "w", encoding="utf-8") as f:
