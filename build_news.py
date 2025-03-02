@@ -7,12 +7,11 @@ from newspaper import Article  # Make sure newspaper3k is installed
 
 def get_full_article(article_url):
     """
-    If the article URL is from biztoc.com then return a message
-    indicating that the full story appeared on the original source.
+    If the article URL is from biztoc.com then return a message indicating that the
+    full story appeared on the original source.
     Otherwise, try to download and return the full article text.
     """
     if "biztoc.com" in article_url:
-        # Return a message with a link to the original source.
         return f'This story appeared on <a href="{article_url}" target="_blank">original source</a>.'
     try:
         art = Article(article_url)
@@ -32,6 +31,7 @@ def fetch_ai_news():
         raise ValueError("Please set the NEWS_API_KEY environment variable!")
     
     url = "https://newsapi.org/v2/everything"
+    # Broad query for AI topics
     query = '("Artificial Intelligence" OR "machine learning" OR "deep learning" OR "neural network" OR "AI")'
     params = {
         "q": query,
@@ -49,24 +49,37 @@ def fetch_ai_news():
 
 def filter_ai_articles(articles):
     """
-    Filter articles so that only those that mention at least one of the key AI-related
-    phrases (excluding generic "ai" alone) in the title, description, or content are kept.
+    Filter articles so that:
+      1. Only articles that mention at least one of the key AI-related phrases 
+         (excluding generic "ai" alone) in their title, description, or content are kept.
+      2. Articles whose URL contains any blocked domain (e.g. "economictimes.indiatimes.com") are dropped.
     """
+    # Define required AI-related phrases (case-insensitive)
     required_terms = [
         "artificial intelligence",
         "machine learning",
         "deep learning",
         "neural network"
     ]
+    # Define a list of blocked domains (in lowercase)
+    blocked_domains = [
+        "economictimes.indiatimes.com"
+    ]
+    
     filtered = []
     for article in articles:
-        # Combine the title, description, and content into one lowercase string.
+        url = article.get("url", "").lower()
+        # Skip the article if it comes from a blocked domain.
+        if any(blocked in url for blocked in blocked_domains):
+            continue
+        
+        # Combine title, description, and content, and lower-case it.
         text = " ".join([
             article.get("title", ""),
             article.get("description", ""),
             article.get("content", "")
         ]).lower()
-        # Add the article only if at least one of the required terms is found.
+        # Only add the article if at least one required term is present.
         if any(term in text for term in required_terms):
             filtered.append(article)
     return filtered
@@ -74,12 +87,13 @@ def filter_ai_articles(articles):
 def generate_html(articles):
     """
     Generate an HTML page displaying the articles.
-    
-    Each article includes a "Read More" button that toggles a collapsible section.
-    For non-biztoc links, the full article text is scraped;
-    for biztoc links, a message is displayed saying the full story appeared on the original source.
-    
-    A red divider is also inserted using client-side JavaScript based on the publication date.
+
+    Each article includes:
+      - A "Read More" button that toggles a collapse with additional (or full) content.
+      - A published date.
+      - A JavaScript-based mechanism to insert a red divider above articles that are older
+        than the previously seen article; this divider helps remind readers which articles
+        they have already seen.
     """
     html_content = """<!DOCTYPE html>
 <html lang="en">
@@ -116,7 +130,6 @@ def generate_html(articles):
             f'<img src="{article.get("urlToImage")}" class="card-img-top" alt="{article.get("title")}">'
             if article.get("urlToImage") else ""
         )
-        # Get the full article text or the message if it's a biztoc link.
         full_article_text = get_full_article(article.get("url"))
         collapse_id = f"collapse{index}"
         
@@ -144,7 +157,6 @@ def generate_html(articles):
     if not articles:
         html_content += "<p>No strictly AI-related articles found.</p>\n"
     
-    # Insert inline JavaScript to add a red divider based on the last seen date.
     html_content += """
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
