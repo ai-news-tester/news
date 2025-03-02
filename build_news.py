@@ -45,23 +45,26 @@ def fetch_ai_news():
 
 def filter_ai_articles(articles):
     """
-    Apply a strict filter so that only articles which mention at least one of
-    the key AI-related terms in their title, description, or content are kept.
+    Filter articles so that only those that mention at least one of the key AI-related
+    terms (excluding the ambiguous 'ai' alone) in their title, description, or content are kept.
     """
-    pattern = re.compile(
-        r"\b(artificial intelligence|machine learning|deep learning|neural network|ai)\b",
-        re.IGNORECASE
-    )
-    
+    required_terms = [
+        "artificial intelligence",
+        "machine learning",
+        "deep learning",
+        "neural network"
+    ]
     filtered = []
     for article in articles:
-        title = article.get("title", "") or ""
-        description = article.get("description", "") or ""
-        content = article.get("content", "") or ""
-        combined = " ".join([title, description, content])
-        if pattern.search(combined):
+        # Combine title, description, and content into one lowercase string.
+        text = " ".join([
+            article.get("title", ""),
+            article.get("description", ""),
+            article.get("content", "")
+        ]).lower()
+        # Accept the article only if at least one required term is found.
+        if any(term in text for term in required_terms):
             filtered.append(article)
-    
     return filtered
 
 def generate_html(articles):
