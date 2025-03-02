@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Strict AI News Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    .divider {
+      border-top: 2px solid red;
+      margin: 20px 0;
+      padding-top: 10px;
+      text-align: center;
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<div class="container mt-5">
+  <h1 class="mb-4">Latest AI News</h1>
+<p>No strictly AI-related articles found.</p>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const lastSeen = localStorage.getItem('lastSeen');
+  const cards = document.querySelectorAll('.card.mb-3');
+  let dividerInserted = false;
+  if (lastSeen) {
+    cards.forEach(card => {
+      const pubDateElem = card.querySelector('.pub-date');
+      if (pubDateElem) {
+        const pubDate = new Date(pubDateElem.getAttribute('data-pub-date'));
+        if (pubDate < new Date(lastSeen) && !dividerInserted) {
+          const divider = document.createElement('div');
+          divider.className = 'divider';
+          divider.innerText = 'Previously Seen Articles';
+          card.parentNode.insertBefore(divider, card);
+          dividerInserted = true;
+        }
+      }
+    });
+  }
+  if (cards.length > 0) {
+    const firstPubDate = cards[0].querySelector('.pub-date').getAttribute('data-pub-date');
+    localStorage.setItem('lastSeen', firstPubDate);
+  }
+});
+</script>
+</body>
+</html>
