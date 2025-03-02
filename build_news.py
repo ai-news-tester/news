@@ -3,13 +3,17 @@ import re
 import shutil
 import requests
 from datetime import datetime
-from newspaper import Article  # Make sure to install newspaper3k
+from newspaper import Article  # Make sure newspaper3k is installed
 
 def get_full_article(article_url):
     """
-    Scrape the full article text from the URL using newspaper3k.
-    If unsuccessful, return a fallback message.
+    If the article URL is from biztoc.com then return a message
+    indicating that the full story appeared on the original source.
+    Otherwise, try to download and return the full article text.
     """
+    if "biztoc.com" in article_url:
+        # Return a message with a link to the original source.
+        return f'This story appeared on <a href="{article_url}" target="_blank">original source</a>.'
     try:
         art = Article(article_url)
         art.download()
@@ -46,7 +50,7 @@ def fetch_ai_news():
 def filter_ai_articles(articles):
     """
     Filter articles so that only those that mention at least one of the key AI-related
-    terms (excluding the ambiguous 'ai' alone) in their title, description, or content are kept.
+    phrases (excluding generic "ai" alone) in the title, description, or content are kept.
     """
     required_terms = [
         "artificial intelligence",
@@ -56,13 +60,13 @@ def filter_ai_articles(articles):
     ]
     filtered = []
     for article in articles:
-        # Combine title, description, and content into one lowercase string.
+        # Combine the title, description, and content into one lowercase string.
         text = " ".join([
             article.get("title", ""),
             article.get("description", ""),
             article.get("content", "")
         ]).lower()
-        # Accept the article only if at least one required term is found.
+        # Add the article only if at least one of the required terms is found.
         if any(term in text for term in required_terms):
             filtered.append(article)
     return filtered
@@ -71,10 +75,11 @@ def generate_html(articles):
     """
     Generate an HTML page displaying the articles.
     
-    Each article has a "Read More" button that expands a collapsible area. In the collapsible area,
-    the full article is loaded using newspaper3k.
+    Each article includes a "Read More" button that toggles a collapsible section.
+    For non-biztoc links, the full article text is scraped;
+    for biztoc links, a message is displayed saying the full story appeared on the original source.
     
-    A red divider is inserted as a reminder of previously seen articles using client-side localStorage.
+    A red divider is also inserted using client-side JavaScript based on the publication date.
     """
     html_content = """<!DOCTYPE html>
 <html lang="en">
@@ -111,7 +116,7 @@ def generate_html(articles):
             f'<img src="{article.get("urlToImage")}" class="card-img-top" alt="{article.get("title")}">'
             if article.get("urlToImage") else ""
         )
-        # Instead of using the truncated content from NewsAPI, fetch full content.
+        # Get the full article text or the message if it's a biztoc link.
         full_article_text = get_full_article(article.get("url"))
         collapse_id = f"collapse{index}"
         
@@ -139,6 +144,7 @@ def generate_html(articles):
     if not articles:
         html_content += "<p>No strictly AI-related articles found.</p>\n"
     
+    # Insert inline JavaScript to add a red divider based on the last seen date.
     html_content += """
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
