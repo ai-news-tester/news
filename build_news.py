@@ -3,8 +3,8 @@ import re
 import shutil
 import requests
 from datetime import datetime
-from newspaper import Article  # Ensure newspaper3k is installed
-from bs4 import BeautifulSoup  # Ensure beautifulsoup4 is installed
+from newspaper import Article  # Make sure newspaper3k is installed
+from bs4 import BeautifulSoup  # Make sure beautifulsoup4 is installed
 
 def get_full_article(article_url):
     """
@@ -19,7 +19,6 @@ def get_full_article(article_url):
             res.raise_for_status()
             soup = BeautifulSoup(res.text, 'html.parser')
             original_link = None
-            # Look for an anchor tag with typical Biztoc wording.
             for a in soup.find_all('a', href=True):
                 text = a.get_text().strip().lower()
                 if "this story appeared on" in text or "original article" in text:
@@ -68,10 +67,9 @@ def fetch_ai_news():
 def filter_ai_articles(articles):
     """
     Filter articles as follows:
-      1. Skip any article from blocked domains (for example, "economictimes.indiatimes.com").
-      2. For every article (regardless of whether it's from Biztoc or not), require that
-         at least one key AI-related phrase appears in its title, description, or content.
-         This prevents non-AI Biztoc articles from being allowed.
+      1. Skip any article from blocked domains (e.g. "economictimes.indiatimes.com").
+      2. For every article (regardless of origin), require that at least one key AI-related phrase
+         appears in its title, description, or content.
     """
     required_terms = [
         "artificial intelligence",
@@ -85,23 +83,143 @@ def filter_ai_articles(articles):
     filtered = []
     for article in articles:
         url = article.get("url", "").lower()
-        # Skip any article from a blocked domain.
+        # Skip articles from blocked domains.
         if any(blocked in url for blocked in blocked_domains):
             continue
-        # Combine title, description, and content (as available).
+        # Combine title, description, and content.
         text = " ".join([
             article.get("title", ""),
             article.get("description", ""),
             article.get("content", "")
         ]).lower()
-        # Accept the article only if at least one required term is found.
+        # Accept the article if at least one required term is found.
         if any(term in text for term in required_terms):
             filtered.append(article)
     return filtered
 
 def generate_html(articles):
     """
-    Generate an HTML page listing the filtered articles. Each article card includes:
+    Generate an HTML page listing the filtered articles.
+    Each article card includes:
       - An image (if available)
       - The title and description
-      - A "Read
+      - A "Read More" button that toggles a collapsible section showing the full article text.
+      - Publication date metadata (used by JavaScript later to insert a red divider).
+    """
+    html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Strict AI News Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    .divider {
+      border-top: 2px solid red;
+      margin: 20px 0;
+      padding-top: 10px;
+      text-align: center;
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<div class="container mt-5">
+  <h1 class="mb-4">Latest AI News</h1>
+"""
+    for index, article in enumerate(articles):
+        try:
+            pub_dt = datetime.fromisoformat(article.get("publishedAt").replace("Z", "+00:00"))
+            pub_date = pub_dt.strftime('%Y-%m-%d %H:%M')
+            pub_date_iso = article.get("publishedAt")
+        except Exception:
+            pub_date = article.get("publishedAt", "Unknown Date")
+            pub_date_iso = ""
+        image_html = (f'<img src="{article.get("urlToImage")}" class="card-img-top" alt="{article.get("title")}">'
+                      if article.get("urlToImage") else "")
+        full_article_text = get_full_article(article.get("url"))
+        collapse_id = f"collapse{index}"
+        
+        html_content += f"""
+  <div class="card mb-3">
+    {image_html}
+    <div class="card-body">
+      <h5 class="card-title">{article.get("title")}</h5>
+      <p class="card-text">{article.get("description", "")}</p>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#{collapse_id}" aria-expanded="false" aria-controls="{collapse_id}">
+        Read More
+      </button>
+      <div class="collapse mt-2" id="{collapse_id}">
+        <div class="card card-body">
+          <p>{full_article_text}</p>
+          <a href="{article.get("url")}" target="_blank">Visit Original Article</a>
+        </div>
+      </div>
+      <p class="card-text pub-date" data-pub-date="{pub_date_iso}">
+        <small class="text-muted">Published at: {pub_date}</small>
+      </p>
+    </div>
+  </div>
+"""
+    if not articles:
+        html_content += "<p>No strictly AI-related articles found.</p>\n"
+    html_content += """
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const lastSeen = localStorage.getItem('lastSeen');
+  const cards = document.querySelectorAll('.card.mb-3');
+  let dividerInserted = false;
+  if (lastSeen) {
+    cards.forEach(card => {
+      const pubDateElem = card.querySelector('.pub-date');
+      if (pubDateElem) {
+        const pubDate = new Date(pubDateElem.getAttribute('data-pub-date'));
+        if (pubDate < new Date(lastSeen) && !dividerInserted) {
+          const divider = document.createElement('div');
+          divider.className = 'divider';
+          divider.innerText = 'Previously Seen Articles';
+          card.parentNode.insertBefore(divider, card);
+          dividerInserted = true;
+        }
+      }
+    });
+  }
+  if (cards.length > 0) {
+    const firstPubDate = cards[0].querySelector('.pub-date').getAttribute('data-pub-date');
+    localStorage.setItem('lastSeen', firstPubDate);
+  }
+});
+</script>
+</body>
+</html>
+"""
+    return html_content
+
+def clean_site_folder(site_dir="site"):
+    if os.path.exists(site_dir):
+        shutil.rmtree(site_dir)
+    os.makedirs(site_dir)
+
+def main():
+    try:
+        articles = fetch_ai_news()
+        print("Fetched", len(articles), "articles")
+    except Exception as e:
+        print("Error fetching news:", e)
+        articles = []
+    filtered_articles = filter_ai_articles(articles)
+    print("After filtering:", len(filtered_articles), "articles")
+    html = generate_html(filtered_articles)
+    clean_site_folder("site")
+    try:
+        with open(os.path.join("site", "index.html"), "w", encoding="utf-8") as f:
+            f.write(html)
+        print("Site generated at 'site/index.html'.")
+    except Exception as e:
+        print("Error writing HTML file:", e)
+
+if __name__ == "__main__":
+    main()
