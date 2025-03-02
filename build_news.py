@@ -3,15 +3,15 @@ import re
 import shutil
 import requests
 from datetime import datetime
-from newspaper import Article  # Make sure newspaper3k is installed
+from newspaper import Article  # Ensure newspaper3k is installed
 from bs4 import BeautifulSoup  # Ensure beautifulsoup4 is installed
 
 def get_full_article(article_url):
     """
-    For Biztoc URLs, try to extract the original article URL by looking for the 
-    phrase "this story appeared on" or "original article" in the anchor text.
+    For Biztoc URLs: Attempt to extract the original article URL from the Biztoc page by looking 
+    for an anchor tag where the text includes "this story appeared on" or "original article".
     Then use newspaper3k to retrieve the full article text from that URL.
-    For all other URLs, simply attempt to scrape the full article.
+    For all other URLs, attempt to fetch the full article directly.
     """
     if "biztoc.com" in article_url:
         try:
@@ -19,50 +19,38 @@ def get_full_article(article_url):
             res.raise_for_status()
             soup = BeautifulSoup(res.text, 'html.parser')
             original_link = None
-            # Look for anchor tags that contain the common Biztoc wording.
+            # Look for an anchor tag containing typical Biztoc phrasing.
             for a in soup.find_all('a', href=True):
-                text = a.get_text().lower()
+                text = a.get_text().strip().lower()
                 if "this story appeared on" in text or "original article" in text:
                     original_link = a['href']
                     break
             if original_link:
                 print(f"Extracted original link from Biztoc: {original_link}")
                 article_url = original_link
-                # Now try to fetch full article from the original source.
-                art = Article(article_url)
-                art.download()
-                art.parse()
-                return art.text
             else:
                 print("No original link found on Biztoc page.")
                 return f'This story appeared on <a href="{article_url}" target="_blank">original source</a>.'
         except Exception as e:
             print(f"Error processing Biztoc link {article_url}: {e}")
             return f'This story appeared on <a href="{article_url}" target="_blank">original source</a>.'
-    else:
-        try:
-            art = Article(article_url)
-            art.download()
-            art.parse()
-            return art.text
-        except Exception as e:
-            print(f"Error fetching full article from {article_url}: {e}")
-            return "Full article not available. Please click 'Visit Original Article'."
-
-
-# ... (the rest of your code remains unchanged, such as fetch_ai_news, filter_ai_articles, generate_html, etc.)
-
+    try:
+        art = Article(article_url)
+        art.download()
+        art.parse()
+        return art.text
+    except Exception as e:
+        print(f"Error fetching full article from {article_url}: {e}")
+        return "Full article not available. Please click 'Visit Original Article'."
 
 def fetch_ai_news():
     """
-    Fetch articles from NewsAPI using a broad query that includes several AI-related keywords.
+    Fetch articles from NewsAPI using a broad query about AI-related topics.
     """
     api_key = os.environ.get("NEWS_API_KEY")
     if not api_key:
         raise ValueError("Please set the NEWS_API_KEY environment variable!")
-    
     url = "https://newsapi.org/v2/everything"
-    # Broad query for AI topics
     query = '("Artificial Intelligence" OR "machine learning" OR "deep learning" OR "neural network" OR "AI")'
     params = {
         "q": query,
@@ -71,7 +59,6 @@ def fetch_ai_news():
         "language": "en",
         "apiKey": api_key,
     }
-    
     response = requests.get(url, params=params)
     response.raise_for_status()
     data = response.json()
@@ -81,50 +68,46 @@ def fetch_ai_news():
 def filter_ai_articles(articles):
     """
     Filter articles so that:
-      1. Only articles that mention at least one of the key AI-related phrases 
-         (excluding generic "ai" alone) in their title, description, or content are kept.
-      2. Articles whose URL contains any blocked domain (e.g. "economictimes.indiatimes.com") are dropped.
+      1. Any article whose URL comes from a blocked domain (like "economictimes.indiatimes.com") is skipped.
+      2. If an article's URL is from Biztoc, allow it regardless of content—Biztoc often provides only a preview.
+      3. All other articles must contain at least one of the required AI-related terms.
     """
-    # Define required AI-related phrases (case-insensitive)
     required_terms = [
         "artificial intelligence",
         "machine learning",
         "deep learning",
         "neural network"
     ]
-    # Define a list of blocked domains (in lowercase)
     blocked_domains = [
         "economictimes.indiatimes.com"
     ]
-    
     filtered = []
     for article in articles:
         url = article.get("url", "").lower()
-        # Skip the article if it comes from a blocked domain.
+        # Skip blocked domains.
         if any(blocked in url for blocked in blocked_domains):
             continue
-        
-        # Combine title, description, and content, and lower-case it.
+        # Allow Biztoc articles regardless of content.
+        if "biztoc.com" in url:
+            filtered.append(article)
+            continue
         text = " ".join([
             article.get("title", ""),
             article.get("description", ""),
             article.get("content", "")
         ]).lower()
-        # Only add the article if at least one required term is present.
         if any(term in text for term in required_terms):
             filtered.append(article)
     return filtered
 
 def generate_html(articles):
     """
-    Generate an HTML page displaying the articles.
-
-    Each article includes:
-      - A "Read More" button that toggles a collapse with additional (or full) content.
-      - A published date.
-      - A JavaScript-based mechanism to insert a red divider above articles that are older
-        than the previously seen article; this divider helps remind readers which articles
-        they have already seen.
+    Generate an HTML page displaying articles with:
+      - A "Read More" button that toggles a collapsible section.
+      - The collapsible section shows the full article text (or a fallback).
+      - The article's published date.
+      - A client-side script that inserts a red divider above articles that are older 
+        than previously seen articles.
     """
     html_content = """<!DOCTYPE html>
 <html lang="en">
@@ -132,8 +115,7 @@ def generate_html(articles):
   <meta charset="UTF-8">
   <title>Strict AI News Blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <style>
     .divider {
       border-top: 2px solid red;
@@ -157,13 +139,9 @@ def generate_html(articles):
         except Exception:
             pub_date = article.get("publishedAt", "Unknown Date")
             pub_date_iso = ""
-        image_html = (
-            f'<img src="{article.get("urlToImage")}" class="card-img-top" alt="{article.get("title")}">'
-            if article.get("urlToImage") else ""
-        )
+        image_html = f'<img src="{article.get("urlToImage")}" class="card-img-top" alt="{article.get("title")}">' if article.get("urlToImage") else ""
         full_article_text = get_full_article(article.get("url"))
         collapse_id = f"collapse{index}"
-        
         html_content += f"""
   <div class="card mb-3">
     {image_html}
@@ -187,7 +165,6 @@ def generate_html(articles):
 """
     if not articles:
         html_content += "<p>No strictly AI-related articles found.</p>\n"
-    
     html_content += """
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -236,11 +213,9 @@ def main():
     except Exception as e:
         print("Error fetching news:", e)
         articles = []
-    
     strict_articles = filter_ai_articles(articles)
     html = generate_html(strict_articles)
     clean_site_folder("site")
-    
     try:
         with open(os.path.join("site", "index.html"), "w", encoding="utf-8") as f:
             f.write(html)
