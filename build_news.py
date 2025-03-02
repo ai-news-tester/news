@@ -4,23 +4,51 @@ import shutil
 import requests
 from datetime import datetime
 from newspaper import Article  # Make sure newspaper3k is installed
+from bs4 import BeautifulSoup  # Ensure beautifulsoup4 is installed
 
 def get_full_article(article_url):
     """
-    If the article URL is from biztoc.com then return a message indicating that the
-    full story appeared on the original source.
-    Otherwise, try to download and return the full article text.
+    For articles from Biztoc, try to extract the original article URL from the Biztoc page
+    and then use newspaper3k to fetch the full article text from that original source.
+    For all other URLs, attempt to fetch the article using newspaper3k.
     """
     if "biztoc.com" in article_url:
-        return f'This story appeared on <a href="{article_url}" target="_blank">original source</a>.'
-    try:
-        art = Article(article_url)
-        art.download()
-        art.parse()
-        return art.text
-    except Exception as e:
-        print(f"Error fetching full article from {article_url}: {e}")
-        return "Full article not available. Please click 'Visit Original Article'."
+        try:
+            res = requests.get(article_url, timeout=10)
+            res.raise_for_status()
+            soup = BeautifulSoup(res.text, 'html.parser')
+            original_link = None
+            # Search for an anchor tags with text containing "original"
+            for a in soup.find_all('a', href=True):
+                if "original" in a.get_text().lower():
+                    original_link = a['href']
+                    break
+            if original_link:
+                print(f"Extracted original link from Biztoc: {original_link}")
+                article_url = original_link
+            else:
+                print(f"No original link found on Biztoc page: {article_url}")
+                return f'This story appeared on <a href="{article_url}" target="_blank">original source</a>.'
+            # Now attempt to fetch full article from the original URL
+            art = Article(article_url)
+            art.download()
+            art.parse()
+            return art.text
+        except Exception as e:
+            print(f"Error processing Biztoc link {article_url}: {e}")
+            return f'This story appeared on <a href="{article_url}" target="_blank">original source</a>.'
+    else:
+        try:
+            art = Article(article_url)
+            art.download()
+            art.parse()
+            return art.text
+        except Exception as e:
+            print(f"Error fetching full article from {article_url}: {e}")
+            return "Full article not available. Please click 'Visit Original Article'."
+
+# ... (the rest of your code remains unchanged, such as fetch_ai_news, filter_ai_articles, generate_html, etc.)
+
 
 def fetch_ai_news():
     """
