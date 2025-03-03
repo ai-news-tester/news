@@ -21,67 +21,271 @@
   <h1 class="mb-4">Latest AI News</h1>
 
   <div class="card mb-3">
-    <img src="https://www.sinhalanet.net/wp-content/uploads/2015/07/logo.jpg" class="card-img-top" alt="CHATGPT list of US agencies funding Govt & Civil Society warrants immediate investigation & disclose to Sri Lankan citizens by the GoSL">
+    
     <div class="card-body">
-      <h5 class="card-title">CHATGPT list of US agencies funding Govt & Civil Society warrants immediate investigation & disclose to Sri Lankan citizens by the GoSL</h5>
-      <p class="card-text">US funding for GoSL entities & Civil Society 2015 to present
-Click to open list
-With “artificial intelligence” now becoming the buzzword, citizens should utilize it to gather information while knowing that it is not completely correct. It is an …</p>
+      <h5 class="card-title">neuraltrack added to PyPI</h5>
+      <p class="card-text">NeuralTrack is a lightweight logging tool for deep learning training</p>
       <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse0" aria-expanded="false" aria-controls="collapse0">
         Read More
       </button>
       <div class="collapse mt-2" id="collapse0">
         <div class="card card-body">
-          <p>CHATGPT list of US agencies funding Govt & Civil Society warrants immediate investigation & disclose to Sri Lankan citizens by the GoSL
+          <p>NeuralTrack
 
-US funding for GoSL entities & Civil Society 2015 to present
+NeuralTrack is a lightweight logging tool for deep learning training, designed to track loss and gradient updates efficiently without slowing down the training process. It provides easy-to-use logging functionality and visualization tools to help monitor model performance.
 
-Click to open list
+Features
 
-With “artificial intelligence” now becoming the buzzword, citizens should utilize it to gather information while knowing that it is not completely correct. It is an entity giving us information that is in public domain cutting time spent on searching. However, if incorrect data had been fed it is likely that the output we receive will undoubtedly be questionable. Therefore, while we cannot presume ChatGPT to be entire factual what it is giving cannot be completely disregarded as well. It provides the sources and also encourages us to verify from the original websites, annual reports etc. Also, depending on how the question is asked the answers are likely to vary as well. But it provides a good foundation for investigation.
+✅ Minimal Overhead – Asynchronous logging ensures training speed is not compromised.
 
-Therefore, the GoSL is dutybound to investigate as the Speaker himself as agreed to do, primarily because not only political parties, but Parliament, Central Bank, Judicial system, Ministries, Corporations – entire state entities ChatGPT claims to have received funding & collaborated in a variety of programs that constitute a violation of Sri Lanka’s sovereignty & territorial integrity as well as a threat to Article 9 of Sri Lanka’s Constitution as the very entities that fund the State are clamouring to change the Constitution with primary goal to remove Article 9 of Sri Lanka’s Constitution thus fulfilling the colonial goal that they have failed to do since 1505.
+✅ Loss Tracking – Logs individual loss components per epoch.
 
-So the Trojan Horse has now after over 500 years of trying come inside the gates.
+✅ Gradient Tracking – Captures gradient statistics (mean, median, max, min) for each layer.
 
-While our attention has always been on civil society, NGOs, think tanks ets being aligned & funded to destabilize Sri Lanka, the enemy has nicely crept into the State apparatus especially following the 2015 regime change.
+✅ Visualizations – Generate loss and gradient plots with simple CLI commands.
 
-Nevertheless, governments may come & go, officials can be changed or removed but the Nation must remain protecting & securing the civilizational history & heritage for it is that which has held the Nation together & protected all. Neither of the worlds 2 powerful faiths have moral standing to dictate given that all of the world’s wars involve them while the faith that heralds our nearest neighbor is also involved in unforgiveable destruction & vandalism of Buddhist heritage sites in the North & East.
+Installation
 
-Going through the list / the amounts disbursed / the programs that are being rolled out doesn’t take an idiot to connect the dots & picture what the ultimate goal is.
+Install NeuralTrack via pip:
 
-This should be a concern not only to the Govt, but the Opposition and every Nation loving citizen.
+pip install neuraltrack
 
-Pressure must be exerted to launch an immediate investigation on the State entites, MPs, Ministries etc receiving USAID funding while the Constitutional Committee must remove all MPs including PM who have either worked for US agencies or received funds from them. This is a violation of the Constitution & a major conflict of interest knowing that these international agencies are pushing to change the constitution and have been attempting to do so for many years.
+Quickstart
 
-Shenali D Waduge
+1️⃣ Logging Loss
 
-2 Viewers</p>
-          <a href="https://www.sinhalanet.net/chatgpt-list-of-us-agencies-funding-govt-civil-society-warrants-immediate-investigation-disclose-to-sri-lankan-citizens-by-the-gosl" target="_blank">Visit Original Article</a>
+In your training loop, use the LossLogger to track loss values:
+
+from neuraltrack.logging.loss_logger import LossLogger logger = LossLogger ( "loss_log.json" ) for epoch in range ( num_epochs ): logger . start_epoch () for batch in dataloader : output = Model ( input ) loss1 = loss1 ( output ) loss2 = loss2 ( input , output ) total_loss = loss1 + loss2 optimizer . zero_grad () total_loss . backward () optimizer . setp () loss_dict = { "total_loss" : total_loss , "loss1" : loss1 , "loss2" : loss2 } logger . add_batch_loss ( loss_dict ) logger . log_epoch_loss ( epoch )
+
+2️⃣ Logging Gradients
+
+Track gradient statistics every few epochs:
+
+from neuraltrack.logging.gradient_logger import GradientLogger grad_logger = GradientLogger ( "gradient_log.json" , log_interval = 10 ) for epoch in range ( num_epochs ): for batch in dataloader : output = Model ( input ) loss1 = loss1 ( output ) loss2 = loss2 ( input , output ) total_loss = loss1 + loss2 optimizer . zero_grad () total_loss . backward () grad_logger . log_gradients ( epoch , model ) optimizer . step ()
+
+CLI Usage for LossPlotter and GradientPlotter
+
+3️⃣ Plotting Loss
+
+You can execute the loss plotting functionality from the CLI by running the following command in the terminal:
+
+neuraltrack-plot-loss --log_path path_to_loss_log.json --show_plot --save_dir output_directory
+
+Arguments for LossPlotter:
+
+--log_path : Path to the loss log JSON file (required).
+
+: Path to the loss log JSON file (required). --show_plot : Optional flag to display the plot interactively (if this is passed, the plot will open in a window after saving it).
+
+: Optional flag to display the plot interactively (if this is passed, the plot will open in a window after saving it). --save_dir : Directory where the plot will be saved (optional; defaults to LossPlots).
+
+Example Usage:
+
+neuraltrack-plot-loss --log_path loss_log.json --show_plot
+
+This command will generate a loss plot from the data in loss_log.json and display it interactively.
+
+4️⃣ Plotting Gradients
+
+To generate gradient plots, you can use the following command in your terminal:
+
+neuraltrack-plot-gradient --log_path path_to_gradient_log.json --epoch 5 --show_plot --chart_type line --include_bias
+
+Arguments for GradientPlotter:
+
+--log_path: Path to the gradient log JSON file (required).
+
+--epoch : Specific epoch number to plot (optional; default is 1).
+
+: Specific epoch number to plot (optional; default is 1). --show_plot : Optional flag to display the plot interactively (if this is passed, the plot will open in a window after saving it).
+
+: Optional flag to display the plot interactively (if this is passed, the plot will open in a window after saving it). --chart_type : The type of chart to use. Can be either line or bar (optional; default is line).
+
+: The type of chart to use. Can be either line or bar (optional; default is line). --include_bias : Flag to include bias layers in the plot (optional; default is False).
+
+Example Usage:
+
+neuraltrack-plot-gradient --log_path gradient_log.json --epoch 5 --show_plot --chart_type bar --include_bias
+
+This will generate a bar chart for the gradient values of epoch 5 and display the plot interactively.
+
+Python Code Usage
+
+Both LossPlotter and GradientPlotter can also be used directly within Python scripts.
+
+LossPlotter Example (Python)
+
+from neuraltrack.visualization.loss_plot import LossPlotter # Initialize LossPlotter with the path to the log file and save directory plotter = LossPlotter ( log_path = "loss_log.json" , save_dir = "LossPlots" ) # Plot the losses (optionally show the plot) plotter . plot_losses ( show_plot = True )
+
+log_path : The path to your loss log JSON file.
+
+: The path to your loss log JSON file. save_dir : The directory where the plot should be saved (optional; defaults to LossPlots).
+
+: The directory where the plot should be saved (optional; defaults to LossPlots). show_plot : If set to True, the plot will be shown interactively after it is generated.
+
+GradientPlotter Example (Python)
+
+from neuraltrack.visualization.gradient_plot import GradientPlotter # Initialize GradientPlotter with your preferred arguments plotter = GradientPlotter ( log_path = "gradient_log.json" , save_dir = "GradientPlots" , chart_type = "line" , include_bias = False ) # Plot gradients for epoch 5 plotter . plot_gradients ( show_plot = True , epoch = 5 )
+
+log_path : Path to your gradient log JSON file.
+
+: Path to your gradient log JSON file. save_dir : Directory where the gradient plot will be saved (optional; defaults to GradientPlots).
+
+: Directory where the gradient plot will be saved (optional; defaults to GradientPlots). chart_type : Choose between 'bar' or 'line' for chart type (optional; defaults to line).
+
+: Choose between 'bar' or 'line' for chart type (optional; defaults to line). show_plot : If set to True, it will display the plot interactively.
+
+: If set to True, it will display the plot interactively. epoch : Specify which epoch's gradient data to plot.
+
+: Specify which epoch's gradient data to plot. include_bias : Set to True if you want to include bias layers in the gradient plot.
+
+LossLogger and GradientLogger Parameters Explanation
+
+Now let's explain the parameters for LossLogger and GradientLogger: LossLogger Parameters:
+
+log_path (str): The path to the JSON file where the loss data will be logged (default: "loss_log.json").
+
+(str): The path to the JSON file where the loss data will be logged (default: "loss_log.json"). epoch_start_time (class variable): The time when the current epoch started (used internally to track epoch duration). loss_data (dict): The dictionary where loss data is stored for each epoch.
+
+(class variable): The time when the current epoch started (used internally to track epoch duration). (dict): The dictionary where loss data is stored for each epoch. loss_components (dict): Holds the running loss components for each batch during an epoch (e.g., for multiple loss functions).
+
+(dict): Holds the running loss components for each batch during an epoch (e.g., for multiple loss functions). total_loss (float): Tracks the total loss for the epoch (used internally).
+
+(float): Tracks the total loss for the epoch (used internally). batch_count (int): The number of batches processed in the current epoch (used internally).
+
+(int): The number of batches processed in the current epoch (used internally). lock (threading.Lock): Ensures thread safety when writing logs asynchronously.
+
+GradientLogger Parameters:
+
+log_path (str): The path to the JSON file where gradient data will be logged (default: "gradient_log.json").
+
+(str): The path to the JSON file where gradient data will be logged (default: "gradient_log.json"). save_every (int): The number of epochs between saving gradient data to disk (default: 10).
+
+(int): The number of epochs between saving gradient data to disk (default: 10). log_interval (int): The interval at which gradient data is logged (e.g., every 10 epochs).
+
+(int): The interval at which gradient data is logged (e.g., every 10 epochs). grad_data (dict): A dictionary where the gradient statistics for each epoch are stored.
+
+Roadmap
+
+📌 Add support for additional metrics like accuracy and learning rate tracking. 📌 Extend visualization options (e.g., smoothing, multi-run comparisons).
+
+License
+
+This project is licensed under the MIT License.
+
+Let me know if you want any modifications! 🚀</p>
+          <a href="https://pypi.org/project/neuraltrack/" target="_blank">Visit Original Article</a>
         </div>
       </div>
-      <p class="card-text pub-date" data-pub-date="2025-03-02T14:54:37Z">
-        <small class="text-muted">Published at: 2025-03-02 14:54</small>
+      <p class="card-text pub-date" data-pub-date="2025-03-02T15:31:42Z">
+        <small class="text-muted">Published at: 2025-03-02 15:31</small>
       </p>
     </div>
   </div>
 
   <div class="card mb-3">
-    <img src="https://biztoc.com/cdn/2effa288fbab361c_s.webp" class="card-img-top" alt="Some parents are teaching their children how to use AI chatbots so they are prepared to deploy the tools responsibly as personal assistants when they are older">
+    <img src="https://bloximages.newyork1.vip.townnews.com/roanoke.com/content/tncms/assets/v3/editorial/a/e5/ae520e67-74ca-52db-b489-764ef8445c32/67bf80d62832e.preview.jpg?crop=1754%2C921%2C6%2C221&resize=1200%2C630&order=crop%2Cresize" class="card-img-top" alt="Rich in cash, Japan automaker Toyota builds a city to test futuristic mobility">
     <div class="card-body">
-      <h5 class="card-title">Some parents are teaching their children how to use AI chatbots so they are prepared to deploy the tools responsibly as personal assistants when they are older</h5>
-      <p class="card-text">Jules White used to believe his 11-year-old son needed to know how to code to be successful. Now, though, the Vanderbilt computer science professor says it’s more crucial for James to learn a new, more useful skill: how to prompt artificial intelligence (AI) …</p>
+      <h5 class="card-title">Rich in cash, Japan automaker Toyota builds a city to test futuristic mobility</h5>
+      <p class="card-text">The company plans to test everyday living with robotics, artificial intelligence and autonomous, zero-emissions transportation in its $10 billion Woven City.</p>
       <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
         Read More
       </button>
       <div class="collapse mt-2" id="collapse1">
         <div class="card card-body">
-          <p>This story appeared on <a href="https://biztoc.com/x/2effa288fbab361c" target="_blank">original source</a>.</p>
-          <a href="https://biztoc.com/x/2effa288fbab361c" target="_blank">Visit Original Article</a>
+          <p>State Alabama Alaska Arizona Arkansas California Colorado Connecticut Delaware Florida Georgia Hawaii Idaho Illinois Indiana Iowa Kansas Kentucky Louisiana Maine Maryland Massachusetts Michigan Minnesota Mississippi Missouri Montana Nebraska Nevada New Hampshire New Jersey New Mexico New York North Carolina North Dakota Ohio Oklahoma Oregon Pennsylvania Rhode Island South Carolina South Dakota Tennessee Texas Utah Vermont Virginia Washington Washington D.C. West Virginia Wisconsin Wyoming Puerto Rico US Virgin Islands Armed Forces Americas Armed Forces Pacific Armed Forces Europe Northern Mariana Islands Marshall Islands American Samoa Federated States of Micronesia Guam Palau Alberta, Canada British Columbia, Canada Manitoba, Canada New Brunswick, Canada Newfoundland, Canada Nova Scotia, Canada Northwest Territories, Canada Nunavut, Canada Ontario, Canada Prince Edward Island, Canada Quebec, Canada Saskatchewan, Canada Yukon Territory, Canada
+
+Zip Code</p>
+          <a href="https://roanoke.com/news/nation-world/business/article_ae520e67-74ca-52db-b489-764ef8445c32.html" target="_blank">Visit Original Article</a>
         </div>
       </div>
-      <p class="card-text pub-date" data-pub-date="2025-03-02T14:52:40Z">
-        <small class="text-muted">Published at: 2025-03-02 14:52</small>
+      <p class="card-text pub-date" data-pub-date="2025-03-02T15:30:00Z">
+        <small class="text-muted">Published at: 2025-03-02 15:30</small>
+      </p>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <img src="https://bloximages.newyork1.vip.townnews.com/richmond.com/content/tncms/assets/v3/editorial/6/49/649581e6-36d8-5371-af11-d70aec069feb/67bf80d566df5.preview.jpg?crop=1754%2C921%2C6%2C221&resize=1200%2C630&order=crop%2Cresize" class="card-img-top" alt="Rich in cash, Japan automaker Toyota builds a city to test futuristic mobility">
+    <div class="card-body">
+      <h5 class="card-title">Rich in cash, Japan automaker Toyota builds a city to test futuristic mobility</h5>
+      <p class="card-text">The company plans to test everyday living with robotics, artificial intelligence and autonomous, zero-emissions transportation in its $10 billion Woven City.</p>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+        Read More
+      </button>
+      <div class="collapse mt-2" id="collapse2">
+        <div class="card card-body">
+          <p>State Alabama Alaska Arizona Arkansas California Colorado Connecticut Delaware Florida Georgia Hawaii Idaho Illinois Indiana Iowa Kansas Kentucky Louisiana Maine Maryland Massachusetts Michigan Minnesota Mississippi Missouri Montana Nebraska Nevada New Hampshire New Jersey New Mexico New York North Carolina North Dakota Ohio Oklahoma Oregon Pennsylvania Rhode Island South Carolina South Dakota Tennessee Texas Utah Vermont Virginia Washington Washington D.C. West Virginia Wisconsin Wyoming Puerto Rico US Virgin Islands Armed Forces Americas Armed Forces Pacific Armed Forces Europe Northern Mariana Islands Marshall Islands American Samoa Federated States of Micronesia Guam Palau Alberta, Canada British Columbia, Canada Manitoba, Canada New Brunswick, Canada Newfoundland, Canada Nova Scotia, Canada Northwest Territories, Canada Nunavut, Canada Ontario, Canada Prince Edward Island, Canada Quebec, Canada Saskatchewan, Canada Yukon Territory, Canada
+
+Zip Code</p>
+          <a href="https://richmond.com/news/nation-world/business/article_649581e6-36d8-5371-af11-d70aec069feb.html" target="_blank">Visit Original Article</a>
+        </div>
+      </div>
+      <p class="card-text pub-date" data-pub-date="2025-03-02T15:30:00Z">
+        <small class="text-muted">Published at: 2025-03-02 15:30</small>
+      </p>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <img src="https://www.bleepstatic.com/content/hl-images/2024/04/10/artificial-intelligence-eyes.jpg" class="card-img-top" alt="Nearly 12,000 API keys and passwords found in AI training dataset">
+    <div class="card-body">
+      <h5 class="card-title">Nearly 12,000 API keys and passwords found in AI training dataset</h5>
+      <p class="card-text">Close to 12,000 valid secrets that include API keys and passwords have been found in the Common Crawl dataset used for training multiple artificial intelligence models. [...]</p>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+        Read More
+      </button>
+      <div class="collapse mt-2" id="collapse3">
+        <div class="card card-body">
+          <p>Close to 12,000 valid secrets that include API keys and passwords have been found in the Common Crawl dataset used for training multiple artificial intelligence models.
+
+The Common Crawl non-profit organization maintains a massive open-source repository of petabytes of web data collected since 2008 and is free for anyone to use.
+
+Because of the large dataset, many artificial intelligence projects may rely, at least in part, on the digital archive for training large language models (LLMs), including ones from OpenAI, DeepSeek, Google, Meta, Anthropic, and Stability.
+
+AWS root keys and MailChimp API keys
+
+Researchers at Truffle Security - the company behind the TruffleHog open-source scanner for sensitive data, found valid secrets after checking 400 terabytes of data from 2.67 billion web pages in the Common Crawl December 2024 archive.
+
+They discovered 11,908 secrets that authenticate successfully, which developers hardcoded, indicating the potential of LLMs being trained on insecure code.
+
+It should be noted that LLM training data is not used in raw form and goes through a pre-processing stage that involves cleaning and filtering out unnecessary content like irrelevant data, duplicate, harmful, or sensitive information.
+
+Despite such efforts, it is difficult to remove confidential data, and the process offers no guarantee for stripping such a large dataset of all personally identifiable information (PII), financial data, medical records, and other sensitive content.
+
+After analyzing the scanned data, Truffle Security found valid API keys for Amazon Web Services (AWS), MailChimp, and WalkScore services.
+
+AWS root key in front-end HTML
+
+source: Truffle Security
+
+Overall, TruffleHog identified 219 distinct secret types in the Common Crawl dataset, the most common being MailChimp API keys.
+
+“Nearly 1,500 unique Mailchimp API keys were hard coded in front-end HTML and JavaScript” - Truffle Security
+
+The researchers explain that the developers’ mistake was to hardcode them into HTML forms and JavaScript snippets and did not use server-side environment variables.
+
+MailChimp API key leaked in front-end HTML
+
+source: Truffle Security
+
+An attacker could use these keys for malicious activity such as phishing campaigns and brand impersonation. Furthermore, leaking such secrets could lead to data exfiltration.
+
+Another highlight in the report is the high reuse rate of the discovered secrets, saying that 63% were present on multiple pages. One of them though, a WalkScore API key, “appeared 57,029 times across 1,871 subdomains.”
+
+The researchers also found one webpage with 17 unique live Slack webhooks, which should be kept secret because they allow apps to post messages into Slack.
+
+“Keep it secret, keep it safe. Your webhook URL contains a secret. Don't share it online, including via public version control repositories,” Slack warns.
+
+Following the research, Truffle Security contacted impacted vendors and worked with them to revoke their users' keys. “We successfully helped those organizations collectively rotate/revoke several thousand keys,” the researchers say.
+
+Even if an artificial intelligence model uses older archives than the dataset the researchers scanned, Truffle Security's findings serve as a warning that insecure coding practices could influence the behavior of the LLM.</p>
+          <a href="https://www.bleepingcomputer.com/news/security/nearly-12-000-api-keys-and-passwords-found-in-ai-training-dataset/" target="_blank">Visit Original Article</a>
+        </div>
+      </div>
+      <p class="card-text pub-date" data-pub-date="2025-03-02T15:23:36Z">
+        <small class="text-muted">Published at: 2025-03-02 15:23</small>
       </p>
     </div>
   </div>
