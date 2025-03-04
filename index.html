@@ -19,7 +19,126 @@
 <body>
 <div class="container mt-5">
   <h1 class="mb-4">Latest AI News</h1>
-<p>No strictly AI-related articles found.</p>
+
+  <div class="card mb-3">
+    
+    <div class="card-body">
+      <h5 class="card-title">comet-ml 3.49.4</h5>
+      <p class="card-text">Supercharging Machine Learning</p>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse0" aria-expanded="false" aria-controls="collapse0">
+        Read More
+      </button>
+      <div class="collapse mt-2" id="collapse0">
+        <div class="card card-body">
+          <p>JavaScript is disabled in your browser. Please enable JavaScript to proceed.
+
+A required part of this site couldn’t load. This may be due to a browser extension, network issues, or browser settings. Please check your connection, disable any ad blockers, or try using a different browser.</p>
+          <a href="https://pypi.org/project/comet-ml/3.49.4/" target="_blank">Visit Original Article</a>
+        </div>
+      </div>
+      <p class="card-text pub-date" data-pub-date="2025-03-03T16:55:40Z">
+        <small class="text-muted">Published at: 2025-03-03 16:55</small>
+      </p>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    
+    <div class="card-body">
+      <h5 class="card-title">Explaining AI Explainability</h5>
+      <p class="card-text">Model transparency aims to reduce bias and ensure trust.</p>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
+        Read More
+      </button>
+      <div class="collapse mt-2" id="collapse1">
+        <div class="card card-body">
+          <p>Explaining how artificially intelligent (AI) neural networks (NNs) arrive at their conclusions—especially deep neural networks (DNNs)—is still a scientific challenge.
+
+Nevertheless, the European Union AI Act of 2024 now requires that commercial AI-based products’ conclusions be made “transparent”—that is, able to explain how they arrived at those conclusions.
+
+The first challenge then, according to experts, is explaining AI explainability—a problem that has just recently come closer to solution thanks to a recent paper by post-doctoral researcher Davor Vukadin and colleagues at the University of Zagreb, Croatia, published in ACM Transactions on Intelligent Systems and Technology.
+
+“Explainability plays a crucial role in ensuring that AI systems are transparent and trustworthy,” according to Gerhard Schimpf, a co-author of “The EU AI Act and the Wager on Trustworthy AI.” Schmipf, who was not involved in the work of Vukadin et al, said in a recent CACM video that the EU AI Act “has made groundbreaking regulations in areas where AI interacts with humans.”
+
+However, the EU law requiring transparency is just a prelude to a worldwide explainability requirement for trustworthy critical AI, which is also being fiercely sought by the U.S., U.K., Japan, Canada, China, and the Group of Seven (G7) advanced economies, according to Schimpf et al.
+
+Said Klemo Vladimir at the University of Zagreb, who was not involved in either aforementioned paper, “As AI continues to play an increasingly important role in decision-making, it is vital to ensure model transparency to reduce the risk of biases and stereotypes that may erode trust in these systems. [Vukadin et al.] introduces an innovative method for comprehensively explaining the decisions made by black-box models, which are now widely used in AI applications.”
+
+How So?
+
+Before the recent “explainability” requirement for commercial AI products, engineers of DNNs had been undaunted in creating more complex black boxes, adding millions or even billions of parameters (neurons and synapses) in ever-deeper (more layered) neural networks. The results have been astoundingly successful in achieving more precise results. Nevertheless, these larger and larger DNNs have gotten further and further away from explainability, since the more middle layers added, the more obscure the multifaceted determinations become.
+
+That was no problem for non-critical applications such as natural language understanding, where small errors are tolerated. However, the AI community has started using DNNs for applications that demand explainability, such as explaining to someone why an AI just denied their loan application. Early efforts to explain why the inner layers of a DNN forced the final layer to come to a particular conclusion were difficult to automate, and thus were usually handled by human-invented heuristics similar to the reasons a human decision maker might cite. These fallback explanations sometimes didn’t even attempt to technically solve the “black box” explainability problem, while others tried to sidestep the issue by building in transparency during DNN construction with layer-wise activation tracing, representation vectors, and attention tracking, all of which slow down DNN development, reduces their performance, and often don’t make the DNNs sufficiently transparent anyway, according to Vukadin.
+
+Now, after a decade of research, progress is being made in explaining AI explainability, according to the University of Zagreb researchers.
+
+“Our method determines the importance and polarity [for or against] each input feature in relation to a model’s output. For instance, in the context of a DNN being used for personal loan decisions, our approach can effectively highlight key input features such as credit score, income, or debt-to-income ratio, and quantify the relative influence of each feature on the model’s final decision. This allows all parties to easily inspect and understand the reasoning behind the AI system’s outputs, fostering trust and transparency,” said Vukadin.
+
+Using their explanation of explainability, Vukadin et al. proposed a new and improved version of Layer-wise Relevance Propagation (LRP) previously proposed by Technische Universität Berlin professor Sebastian Bach et al. in a 2015 paper. Bach et al. used Relative Attributing Propagation (RAP) as its Layer-wise Relevance Propagation rule (to trace explainability back from outputs to inputs), which was only partially successful, according to critics at Kyungpook National University (South Korea), namely Woo-Jeoung Nam et al. in “Relative Attributing Propagation: Interpreting the Comparative Contributions of Individual Units in Deep Neural Networks.” According to Nam, Bach’s Relative Attributing Propagation algorithm fails in instances when a neuron receives large activation values of conflicting polarity from its previous layer (that is, one large positive value from one previous layer neuron and one large negative value from a different previous layer neuron), claiming the conflicting values tend to cancel out when tracing backwards the explainability factor.
+
+In response, Vukadin proposed a new Layer-wise Relevance Propagation calculation called Relative Absolute Magnitude Layer-Wise Relevance Propagation (absLRP), which uses normalization to eliminate the cancellation effect—an idea inspired by University of Munich senior research scientist Jindong Gu et al. in 2019’s “Understanding individual decisions of CNNs via contrastive backpropagation.” As such, absLRP uses the absolute final output of each neuron on a layer as a normalizing factor—a function which Vukadin claims can be efficiently implemented in any neural network library containing an automatic differentiation function (see code examples in GitHub). With normalization implemented, the cancelling effect is avoided when tracing explainability backwards through a complex DNN, according to Gu et al.
+
+According to Vukadin, no other research group has combined these secret-sauce ingredients into a single metric to measure the explainability that is traceable through the layers of a DNN—in other words, to explain AI explainability. Other researchers have quantified the various factors when tracing explainability, such as faithfulness, robustness, and localization, but only as separate measurements, whereas Vukadin’s metric—absLRP—measures the Global Attribution Evaluation (GAE) of the input’s contribution to the final output with a single traceable metric.
+
+In more detail, the GAE method measures absLRP by adding one more factor to the faithfulness, robustness, and localization measured by other researchers—namely contrastiveness, inspired by Anna Arias-Duart and several colleagues at Spain’s Barcelona Supercomputing Center in the 2022 paper “Focus! Rating XAI Methods and Finding Biases.” First Vukadin uses a gradient-descent method for determining faithfulness, robustness, and localization (which are together normalized to between -1 and +1). The additional calculation, contrastiveness, makes the final absLRP method comprehensive over all DNN layers, according to Vukadin. The GAE method then obtains the final comprehensive absLRP value by simply multiplying the normalized value by its contrastiveness value—thus taking both factors into account.
+
+Visualization of explainability traced back to the input layer of a DNN classifying a bird (left) and dog (right) using the Global Attribution Evaluation (GAE) method, which measures an input’s contribution to a model’s final output with a single traceable metric.
+
+“Our new evaluation method—GAE—provides a fresh perspective on assessing the faithfulness, robustness, localization, and contrastiveness of attribution traces, whereas previous approaches employed each metric separately without a clear methodology for combining them into a single score. GAE, on the other hand, greatly simplifies the comparison by providing a single comprehensive score,” said Vukadin.
+
+The researchers performed comparison experiments against competing methods (VGG, ResNet, and ViT-Base) and provided extensive data that shows their method demonstrates GAE superiority on two widely used image classification datasets.
+
+R. Colin Johnson is a Kyoto Prize Fellow who ​​has worked as a technology journalist ​for two decades.</p>
+          <a href="http://cacm.acm.org/news/explaining-ai-explainability/" target="_blank">Visit Original Article</a>
+        </div>
+      </div>
+      <p class="card-text pub-date" data-pub-date="2025-03-03T16:54:50Z">
+        <small class="text-muted">Published at: 2025-03-03 16:54</small>
+      </p>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <img src="https://biztoc.com/cdn/906/og.png" class="card-img-top" alt="Cloudsmith Raises $23 Million to Bolster Software Supply Chain Security">
+    <div class="card-body">
+      <h5 class="card-title">Cloudsmith Raises $23 Million to Bolster Software Supply Chain Security</h5>
+      <p class="card-text">Software supply chain security firm Cloudsmith raised $23 million in new funding.
+The Series B round will help the company fund artificial intelligence research and development, invest in software supply chain security product innovations, and expand its sale…</p>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+        Read More
+      </button>
+      <div class="collapse mt-2" id="collapse2">
+        <div class="card card-body">
+          <p>This story appeared on <a href="https://biztoc.com/x/37c093f013161924" target="_blank">original source</a>.</p>
+          <a href="https://biztoc.com/x/37c093f013161924" target="_blank">Visit Original Article</a>
+        </div>
+      </div>
+      <p class="card-text pub-date" data-pub-date="2025-03-03T16:51:27Z">
+        <small class="text-muted">Published at: 2025-03-03 16:51</small>
+      </p>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <img src="https://biztoc.com/cdn/553dbb431997b4ae_s.webp" class="card-img-top" alt="AUKUS sounds out Japan for joint research on AI drones">
+    <div class="card-body">
+      <h5 class="card-title">AUKUS sounds out Japan for joint research on AI drones</h5>
+      <p class="card-text">TOKYO/WASHINGTON -- The AUKUS security grouping has approached Japan with a proposal to conduct joint research on developing artificial intelligence for aerial drones that would accompany Tokyo's next-generation fighter jets, Nikkei has learned.
+Defense offic…</p>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+        Read More
+      </button>
+      <div class="collapse mt-2" id="collapse3">
+        <div class="card card-body">
+          <p>This story appeared on <a href="https://biztoc.com/x/553dbb431997b4ae" target="_blank">original source</a>.</p>
+          <a href="https://biztoc.com/x/553dbb431997b4ae" target="_blank">Visit Original Article</a>
+        </div>
+      </div>
+      <p class="card-text pub-date" data-pub-date="2025-03-03T16:51:16Z">
+        <small class="text-muted">Published at: 2025-03-03 16:51</small>
+      </p>
+    </div>
+  </div>
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
