@@ -21,149 +21,154 @@
   <h1 class="mb-4">Latest AI News</h1>
 
   <div class="card mb-3">
-    <img src="https://www.commondreams.org/media-library/image.jpg?id=56664546&width=1200&height=600&coordinates=0%2C84%2C0%2C85" class="card-img-top" alt="Outrage Over Trump Use of AI to Revoke Visas of Students Deemed 'Hamas Supporters'">
+    
     <div class="card-body">
-      <h5 class="card-title">Outrage Over Trump Use of AI to Revoke Visas of Students Deemed 'Hamas Supporters'</h5>
-      <p class="card-text">In what one critic called "a dangerous new front in the Trump administration's multi-pronged assault on First Amendment rights," the U.S. State Department is launching an artificial intelligence-powered "catch and revoke" program to cancel the visas of intern…</p>
+      <h5 class="card-title">autoloss added to PyPI</h5>
+      <p class="card-text">AutoLoss is a complex optimizer that uses Artifical Intelligence to optimize your neural network</p>
       <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse0" aria-expanded="false" aria-controls="collapse0">
         Read More
       </button>
       <div class="collapse mt-2" id="collapse0">
         <div class="card card-body">
-          <p>In what one critic called "a dangerous new front in the Trump administration's multi-pronged assault on First Amendment rights," the U.S. State Department is launching an artificial intelligence-powered "catch and revoke" program to cancel the visas of international students deemed supportive of the Palestinian resistance group Hamas.
+          <p>AutoLoss
 
-The State Department is working with the Departments of Justice and Homeland Security in what one senior official called a "whole of government and whole of authority approach" to identify and proscribe foreign nationals who appear to support Hamas or other groups the U.S. has designated as "terrorist organizations," Axiosfirst reported.
+AutoLoss is an optimizer that uses Artificial Intelligence to optimize your neural networks as well as possible.
 
-According to Axios' Marc Caputo, the effort includes "AI-assisted reviews of tens of thousands of student visa holders' social media accounts," and "marks a dramatic escalation in the U.S. government's policing of foreign nationals' conduct and speech."
+Usage
 
-Explaining the new policy, U.S. Secretary of State Marco Rubio said Thursday: "We see people marching at our universities and in the streets of our country... calling for intifada, celebrating what Hamas has done... Those people need to go."
+First, import the package and other dependencies:
 
-Responding to the news, Abed Ayoub, national executive director of the American-Arab Anti-Discrimination Committee (ADC), said in a statement that "this should concern all Americans."
+from autoloss import * import torch import torch.nn as nn
 
-"This is a First Amendment and freedom of speech issue and the administration will overplay its hand," Ayoub added. "Americans won't like this. They'll view this as capitulating free speech rights for a foreign nation."
+Then, create your AI Model. For the sake of simplicity, let's just name it model for this example.
 
-ADC said:
+Next, initialize a loss function. For this example, we'll use CrossEntropyLoss:
 
-By employing AI to track and flag individuals for potential visa revocation and/or deportation, the administration is effectively criminalizing peaceful political expression and dissent. Not since the aftermath of 9/11 has such wide-scale surveillance been directed at noncitizen communities, and the reliance on AI tools only magnifies the likelihood of errors, misidentifications, and abuses of discretion. This raises profound questions about privacy and constitutional protections—who is controlling this data, how is it being used, and where is the human oversight?
+loss_fn = nn . CrossEntropyLoss ()
 
+Afterwards, create an instance of the AutoLoss optimizer
 
+optimizer = AutoLoss ( model , loss_fn , patience = 25 )
 
-Progressive podcaster Brian Allen said on the social media site X, "Let's be clear: This is state surveillance on steroids."
+Note: For more advanced details on the patience argument, check Internal Functioning.
 
+Now, to train the model, just call optimizer.step(x, target) , where x is the input data and target is the expected output data.
 
-
-"The Trump [administration] is using AI to monitor foreign students' social media and punishing them for political speech," he continued. "So much for 'free speech absolutism'—guess that only applies if you're a billionaire or a Republican."
-
-
-
-"The message is loud and clear: Dissent will be crushed," Allen added. "The crackdown is here."
-
-AI tools can't be trusted as experts on the First Amendment or the nuances of speech. Using AI to scour visa holders’ social media for “pro-Hamas” posts and report them to an administration threatening to deport international students for protected speech will undoubtedly encourage self-censorship.
-
-
-
-[image or embed]
-
-— Sarah McLaughlin (@sarahemclaugh.bsky.social) March 6, 2025 at 3:26 PM
-
-Journalist Laila Al-Arian warned that "those pushing for this repression will come to realize the dangerous precedent it will set for freedom of speech."
-
-The launch of "catch and revoke" follows a January executive order by President Donald Trump authorizing the deportation of noncitizen students and others who took part in protests against Israel's assault on Gaza, which left the coastal strip flattened and more than 170,000 Palestinians dead, maimed, or missing; and around 2 million more forcibly displaced, starved, or sickened, according to local and international agencies.
-
-"To all the resident aliens who joined in the pro-jihadist protests, we put you on notice," Trump said at the time. "We will find you, and we will deport you."
-
-Earlier this week, Trump also threatened to cut off federal funding to schools that allow what he dubiously called "illegal protests."
-
-"Agitators will be imprisoned/or permanently sent back to the country from which they came," the president said on social media. "American students will be permanently expelled or... arrested."
-
-The ACLU responded to Trump's threats by publishing an open letter to colleges and universities nationwide on Tuesday "urging them to reject any federal pressure to surveil or punish international students and faculty based on constitutionally protected speech."
-
-ACLU legal director Cecilia Wang said: "It is disturbing to see the White House threatening freedom of speech and academic freedom on U.S. college campuses so blatantly. We stand in solidarity with university leaders in their commitment to free speech, open debate, and peaceful dissent on campus."
-
-"Trump's latest coercion campaign, attempting to turn university administrators against their own students and faculty, harkens back to the McCarthy era and is at odds with American constitutional values and the basic mission of universities," Wang added, referring to the extreme repression during the Second Red Scare of the 1940s and '50s.
-
-Israel's war on Gaza sparked the largest wave of nationwide protests—a significant number of them led by Jewish groups including Jewish Voice for Peace and IfNotNow—since the Black Lives Matter movement. According to an analysis by the Armed Conflict Location and Event Data Project, 97% of the 553 campus protests it studied were nonviolent.
-
-There were, however, numerous reports of pro-Israel counter-protesters and police attacking pro-Palestine demonstrators and encampments, including Jewish religious structures.
-
-While few student protesters have endorsed Hamas—which for years was nurtured by Israel as a counterbalance to the Palestinian National Authority—or the October 7 attack, more have voiced support for Palestinian liberation "by any means necessary," including by armed struggle, a legitimate right under international law.
-
-The United States and around two dozen other nations—all but one of them European or the result of European settler-colonialism—consider Hamas, whose political arm governs Gaza, a terrorist organization. Most of the Arab and wider Muslim world views Hamas, whose military wing led the October 7, 2023 attack on Israel, as a legitimate movement for national liberation.
-
-Meanwhile, scores of Global South countries, either directly or via regional blocs, and Ireland are backing a South Africa-led genocide case against Israel at the International Court of Justice in The Hague.
-
-The Trump administration has hit South Africa, as well as the International Criminal Court—which last year issued arrest warrants for Israeli Prime Minister Benjamin Netanyahu, former Israeli Defense Minister Yoav Gallant, and Hamas leader Mohammed Diab Ibrahim Al-Masri for alleged war crimes and crimes against humanity—with punitive sanctions.
-
-</p>
-          <a href="https://www.commondreams.org/news/trump-ai-student-visas" target="_blank">Visit Original Article</a>
+Internal Functioning</p>
+          <a href="https://pypi.org/project/autoloss/" target="_blank">Visit Original Article</a>
         </div>
       </div>
-      <p class="card-text pub-date" data-pub-date="2025-03-07T18:42:56Z">
-        <small class="text-muted">Published at: 2025-03-07 18:42</small>
+      <p class="card-text pub-date" data-pub-date="2025-03-07T18:57:40Z">
+        <small class="text-muted">Published at: 2025-03-07 18:57</small>
       </p>
     </div>
   </div>
 
   <div class="card mb-3">
-    <img src="https://img.etimg.com/thumb/msid-118793145,width-1200,height-630,imgsize-96376,overlay-economictimes/articleshow.jpg" class="card-img-top" alt="R&AW and the Cooked Up">
+    
     <div class="card-body">
-      <h5 class="card-title">R&AW and the Cooked Up</h5>
-      <p class="card-text">A man finds a talking dog for sale and is amazed by the dog's incredible story of espionage, only to find out it's a lie. Another story involves an employee bluffing about job offers from utility companies to get a raise from his boss, who sees through the ru…</p>
+      <h5 class="card-title">autoloss 0.1.0</h5>
+      <p class="card-text">AutoLoss is a complex optimizer that uses Artifical Intelligence to optimize your neural network</p>
       <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
         Read More
       </button>
       <div class="collapse mt-2" id="collapse1">
         <div class="card card-body">
-          <p>A guy sees a sign outside a house: ' Talking Dog for Sale '. Intrigued, he rings the bell and asks about the dog. The owner takes him to the dog, a Labrador.'Can you talk?' he asks. 'Yep,' the dog replies. 'So, what's your story?' The dog looks up and says, 'Well, I discovered I could talk when I was young. I wanted to help the world, so I worked for R&AW. I went on secret missions, eavesdropped on dangerous people and saved countless lives. After a while, I decided to retire and live a simpler life.'The man is stunned. He asks the owner, 'How much do you want for this dog?' The owner replies, '₹100.' '₹100?! Why so cheap?'The owner sighs, 'He's a liar. He never worked for the R&AW!'Company UnltdAn employee goes into their boss' office and says, 'Sir, I'll be straight with you. I know the economy isn't great, but I have three companies after me, so I need a raise.'The boss raises an eyebrow and asks, 'Which companies?' The man says, 'The electricity company, phone company and wi-fi company.'</p>
-          <a href="https://m.economictimes.com/opinion/bliss-of-everyday-life/raw-and-the-cooked-up/articleshow/118793139.cms" target="_blank">Visit Original Article</a>
+          <p>JavaScript is disabled in your browser. Please enable JavaScript to proceed.
+
+A required part of this site couldn’t load. This may be due to a browser extension, network issues, or browser settings. Please check your connection, disable any ad blockers, or try using a different browser.</p>
+          <a href="https://pypi.org/project/autoloss/0.1.0/" target="_blank">Visit Original Article</a>
         </div>
       </div>
-      <p class="card-text pub-date" data-pub-date="2025-03-07T18:39:37Z">
-        <small class="text-muted">Published at: 2025-03-07 18:39</small>
+      <p class="card-text pub-date" data-pub-date="2025-03-07T18:57:40Z">
+        <small class="text-muted">Published at: 2025-03-07 18:57</small>
       </p>
     </div>
   </div>
 
   <div class="card mb-3">
-    <img src="https://photos5.appleinsider.com/gallery/62754-130215-000-lead-Siri-xl.jpg" class="card-img-top" alt="Apple confirms that Apple Intelligence Siri features are taking longer than expected">
+    <img src="https://media.breitbart.com/media/2025/03/Jeff-Bezos-with-a-thousand-yard-stare-640x335.jpg" class="card-img-top" alt="Amazon AI and Google Call Hitler's 'Mein Kampf' a 'True Work of Art'">
     <div class="card-body">
-      <h5 class="card-title">Apple confirms that Apple Intelligence Siri features are taking longer than expected</h5>
-      <p class="card-text">While Apple scheduled and pushed out plenty of artificial intelligence-powered features in the last several months, the next batch of improvements to Siri aren't going to arrive on time.The type of question Apple promises Siri will be able to answer with Appl…</p>
+      <h5 class="card-title">Amazon AI and Google Call Hitler's 'Mein Kampf' a 'True Work of Art'</h5>
+      <p class="card-text">Amazon's AI tools and Google's search snippet have demonstrated the downside of artificial intelligence with a bizarrely glowing review of Adolf Hitler's Mein Kampf, calling the Nazi manifesto "a true work of art."
+The post Amazon AI and Google Call Hitler’s …</p>
       <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
         Read More
       </button>
       <div class="collapse mt-2" id="collapse2">
         <div class="card card-body">
-          <p>The type of question Apple promises Siri will be able to answer with Apple Intelligence. Image source: Apple
+          <p>Amazon’s AI tools and Google’s search snippet have demonstrated the downside of artificial intelligence with a bizarrely glowing review of Adolf Hitler’s Mein Kampf, calling the Nazi manifesto “a true work of art.”
 
-While Apple scheduled and pushed out plenty of artificial intelligence-powered features in the last several months, the next batch of improvements to Siri aren't going to arrive on time.
+404Media reports that Google and Amazon’s AI systems have misinterpreted user reviews of Adolf Hitler’s Mein Kampf, presenting the infamous Nazi manifesto in a positive light. Users noticed Google’s featured snippet on searches related to Hitler’s book pulled in an Amazon AI summary that described the manifesto as “a true work of art.”
 
-Like most other Big Tech companies, Apple has been making some pretty big strides in the AI space as of late. We've seen features like Genmoji, Image Playground, Writing Tools, and Visual Intelligence roll out over the past few months.
+The AI-generated summary on Amazon stated, “Customers find the book easy to read and interesting. They appreciate the insightful and intelligent rants. The print looks nice and is plain. Readers describe the book as a true work of art. However, some find the content boring and grim. Opinions vary on the suspenseful content, historical accuracy, and value for money.” This summary, which Google’s search algorithm then attempted to further condense, failed to capture the nuanced and often critical nature of the user reviews.
 
-However, one feature that we were promised hasn't materialized yet — the new, more personalized Siri. Siri was allegedly supposed to adopt a set of new Apple Intelligence features in iOS 18.4, but it looks like that won't be the case.
+Many of the five-star reviews on Amazon’s listing for Mein Kampf are not endorsements of the book’s content, but rather comments on the quality of the print or shipping. Some reviewers also stress the importance of reading the book to understand the historical context and learn from past mistakes. One reviewer wrote, “Mein Kampf, by Adolf Hitler, should be read by everyone in the world who are interested in a world of peace, social responsibility, and worldwide cooperation,” before clarifying that the book “presents a dark vision of how to go about creating tyranny in a democratic society.”
 
-The reason for the delay is pretty unsurprising: the new Siri features aren't up to Apple's standards.
+After being contacted for comment, Google updated its featured snippet to include an AI Overview that acknowledged the book as being “widely condemned for its hateful and racist ideology,” but noted that historical analyses “might point to aspects of the book that could be considered ‘positive’ from a purely literary or rhetorical perspective.” While this update provides a more balanced perspective, it still highlights the challenges AI systems face when dealing with complex and sensitive topics.
 
-An Apple spokesperson told Daring Fireball that the company is facing a bit of an unexpected delay, but plans to introduce the new features "in the coming year."
+This incident is not the first time Google’s AI Overview feature has generated bizarre or nonsensical results. Since its launch in May 2024, the feature has told users that it’s safe to eat glue and that they should consume one small rock a day. In January, it even suggested using a sex toy with children to address behavioral issues.
 
-"Siri helps our users find what they need and get things done quickly, and in just the past six months, we've made Siri more conversational, introduced new features like type to Siri and product knowledge, and added an integration with ChatGPT.
+Read more at 404Media here.
 
-
-
-We've also been working on a more personalized Siri, giving it more awareness of your personal context, as well as the ability to take action for you within and across your apps. It's going to take us longer than we thought to deliver on these features and we anticipate rolling them out in the coming year."
-
-This aligns with two reports, one in mid-February and another in early March, that suggested the voice-assistant may only get minor Apple Intelligence improvements before iOS 19.
-
-This means features like Personal Context Understanding, In-App Actions, and Onscreen Awareness won't make an appearance until July for beta users, and September for everyone else — if they even show up then.
-
-When Apple first boasted about the feature in ads, it showed how someone could ask Siri the name of someone they met before and it would read their calendar for the answer. Another feature would allow a user to ask about a sports team, then say "when do they play next?" and Siri would add that event to their calendar.
-
-Siri currently remains an unfinished hybrid of its old and new features, which hasn't been going quite as well as one would hope.</p>
-          <a href="https://appleinsider.com/articles/25/03/07/apple-confirms-that-apple-intelligence-siri-features-are-taking-longer-than-expected" target="_blank">Visit Original Article</a>
+Lucas Nolan is a reporter for Breitbart News covering issues of free speech and online censorship.</p>
+          <a href="https://www.breitbart.com/tech/2025/03/07/amazon-ai-and-google-call-hitlers-mein-kampf-a-true-work-of-art/" target="_blank">Visit Original Article</a>
         </div>
       </div>
-      <p class="card-text pub-date" data-pub-date="2025-03-07T18:38:33Z">
-        <small class="text-muted">Published at: 2025-03-07 18:38</small>
+      <p class="card-text pub-date" data-pub-date="2025-03-07T18:56:43Z">
+        <small class="text-muted">Published at: 2025-03-07 18:56</small>
+      </p>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <img src="https://www.popsci.com/wp-content/uploads/2025/03/IAC_KSC_Maserati_7.jpg" class="card-img-top" alt="Robot-driven Maserati MC20 sets new world speed record">
+    <div class="card-body">
+      <h5 class="card-title">Robot-driven Maserati MC20 sets new world speed record</h5>
+      <p class="card-text">Once regarded as a futuristic technology that would be exploited by robots to take over the world, artificial intelligence is rapidly growing in scope and capabilities. Automakers, for one, are putting it to use to create advanced concepts and production vehi…</p>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+        Read More
+      </button>
+      <div class="collapse mt-2" id="collapse3">
+        <div class="card card-body">
+          <p>Once regarded as a futuristic technology that would be exploited by robots to take over the world, artificial intelligence is rapidly growing in scope and capabilities. Automakers, for one, are putting it to use to create advanced concepts and production vehicles. And Italian supercar builder Maserati is harnessing the technology to set world records.
+
+This month, an AI-controlled Maserati MC20 reached 197.7 miles per hour at Kennedy Space Center. The Maserati obliterated the previous record set by an Indy Autonomous Challenge AV-21 racecar set in 2022 by nearly five full seconds, an impressive feat for a robot-driven car.
+
+As built, Maserati’s MC20 is powered by a twin-turbocharged 3.0-liter V6 making 621 horsepower, and its top speed is 202 mph when driven by a human. With a robot behind the wheel, so to speak, the MC20 got within spitting distance of that maximum. That’s not too shabby.
+
+The point isn’t max speed, however. Setting a world record is a byproduct of pushing AI-driver software and robotics software to perform at the top edge of its abilities. Ultimately, the goal is to forge a path to safe and secure autonomous mobility on the highway. There may be a long way to go to achieve fully self-driving cars around the world, but Maserati is actively working toward that future.
+
+All in the name of research
+
+The Indy Autonomous Challenge (IAC) attracts college student teams from around the world to compete, featuring technology aimed at speeding the commercialization of fully autonomous vehicles. Together, IAC partnered with Politecnico di Milano (an Italian university specializing in technology, architecture, and science) and Maserati to stage the MC20 at Space Florida Launch and Landing Facility at the Kennedy Space Center. Considering it has one of the world’s longest runways at 15,000 feet (2.8 miles), it’s a great place to test a fast car. And hey, if it’s good enough for the space shuttle, it’s more than good enough for a test run with a supercar.
+
+Developed by professors, PhD students, and researchers from Politecnico di Milano, who have been studying and working in the field for years, the technology was designed to bring autonomous driving to public roads in Italy. The main focus is to study the technology under various and extreme conditions to make it increasingly precise, robust, and safe.
+
+The car was built through a partnership with Maserati, Politecnico di Milano, and the Indy Autonomous Challenge. Image: Maserati
+
+Researchers from Politecnico di Milano have been conducting research projects in collaboration with Maserati for several years. When professor Sergio Savaresi proposed the project, Maserati donated the first cars for experimentation. The participation of sports cars like the MC20 played a crucial role in initiating the experimentation and effectively communicating the importance of technological development in Italy and worldwide, Savaresi says.
+
+The technology is based on a combination of deterministic algorithms, which rely on authoritative control and artificial intelligence algorithms. This system, entirely developed by the Politecnico di Milano, is built on the research group’s experience in the field of vehicle automation.
+
+“One of the challenges affecting the world today is pollution and the sustainability of the current mobility model,” Savaresi says. “Autonomous driving aims to drastically reduce the number of circulating cars by maximizing available seats and fully utilizing vehicle capacity. The solution helps to reduce traffic and make cities more green.”
+
+What happens next?
+
+This record represents a significant improvement over Maserati’s run last year in a MC20 Cielo also developed by Politecnico di Milano. In dense fog, the “robo-driver” reached 177 miles per hour at Piacenza-San Damiano Air Base in Italy in November 2024.
+
+Now that the latest record-setting speed has been achieved, the next goal for the Maserati team is to continue public road-testing during events and races such as the 1000 Miglia in Italy and worldwide. Ultimately, the automaker wants to promote scientific dissemination to increase awareness and acceptance of the technology while ensuring it’s developed with safety in mind.
+
+The point of the record-setting wasn’t speed, however; it’s about testing autonomous technology. Image: Maserati
+
+The Italian professor believes AI-backed technology is crucial because artificial intelligence can enhance road safety by assisting and supporting drivers in critical situations, moments of fatigue, or emergencies. Moreover, he says, the car as we know it today is used for two different purposes: function and fun. Cars like the MC20 are designed both as a means of transportation and for the pleasure of driving. Autonomous driving helps replace its use solely for necessity but leaves the joy of driving to humans on the track with high-performance sports cars.
+
+After all, cars like the MC20 are built to be driven by humans, not robots. Robo-drivers can have the boring cars, the ones that aren’t as beautiful or as powerful. Let me keep the ones that roar like thunder–or, if they’re electric, to thrill me with their effortless acceleration. Thankfully, Maserati’s work on autonomous cars isn’t going to erase that anytime soon.</p>
+          <a href="https://www.popsci.com/technology/maserati-mc20-self-driving-speed-record/" target="_blank">Visit Original Article</a>
+        </div>
+      </div>
+      <p class="card-text pub-date" data-pub-date="2025-03-07T18:49:26Z">
+        <small class="text-muted">Published at: 2025-03-07 18:49</small>
       </p>
     </div>
   </div>
